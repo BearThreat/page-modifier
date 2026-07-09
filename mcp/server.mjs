@@ -36,6 +36,8 @@ const patchSchema = z
   })
   .optional();
 
+const looseObject = z.object({}).passthrough();
+
 const verifierSchema = {
   bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
   backend: z.enum(["cdp", "openclaw"]).optional().describe("Verifier backend. Default: cdp."),
@@ -90,6 +92,52 @@ server.tool(
       const result = await client.evidence(url);
       const status = result.verification?.status ?? "unverified";
       return textResult(`page modifier evidence: ${status} ${url}`, { result });
+    } catch (error) {
+      return errorResult(error);
+    }
+  },
+);
+
+server.tool(
+  "page_modifier_export_bundle",
+  "Export the active page modification as a shareable bundle containing intents, CSS/JS patch material, notes, and verification summary. Does not include cookies, storage, captures, or session grants.",
+  {
+    bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
+    url: z.string().url().describe("Absolute page URL to export."),
+  },
+  async ({ bridge, url }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.exportBundle({ url });
+      return textResult(`exported page modifier bundle for ${url}`, { result });
+    } catch (error) {
+      return errorResult(error);
+    }
+  },
+);
+
+server.tool(
+  "page_modifier_import_bundle",
+  "Import a page modification bundle to a target URL. Imported patches are marked unverified until page_modifier_verify passes on the target page.",
+  {
+    bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
+    url: z.string().url().optional().describe("Target URL. Defaults to bundle.url."),
+    bundle: z
+      .object({
+        schema: z.literal("page-modifier.bundle.v1"),
+        url: z.string().url().optional(),
+        page: looseObject.optional(),
+        intents: z.array(looseObject).optional(),
+        patch: looseObject,
+        verification: looseObject.nullable().optional(),
+      })
+      .describe("Bundle from page_modifier_export_bundle or `page-modifier export`."),
+  },
+  async ({ bridge, url, bundle }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.importBundle({ url, bundle });
+      return textResult(`imported page modifier bundle for ${url ?? bundle.url}`, { result });
     } catch (error) {
       return errorResult(error);
     }

@@ -11,6 +11,7 @@ const DATA_DIR =
 const REGISTRY_PATH = join(DATA_DIR, "registry.json");
 const MAX_BODY_BYTES = 2_000_000;
 const SESSION_GRANT_TTL_MS = 30 * 60 * 1000;
+const BUNDLE_SCHEMA = "page-modifier.bundle.v1";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -218,6 +219,73 @@ function latestLiveSessionGrant(page) {
   );
 }
 
+function exportBundle(page) {
+  const patch = activePatch(page);
+  if (!patch) {
+    throw Object.assign(new Error("page has no active patch to export"), { status: 404 });
+  }
+  const evidence = page.verification?.evidence ?? null;
+  return {
+    schema: BUNDLE_SCHEMA,
+    exportedAt: nowIso(),
+    url: page.urlSample,
+    page: {
+      key: page.key,
+      origin: page.origin,
+      pathname: page.pathname,
+    },
+    intents: (page.intents ?? []).map((intent) => ({
+      text: intent.text,
+      createdAt: intent.createdAt,
+    })),
+    patch: {
+      css: patch.css ?? "",
+      js: patch.js ?? "",
+      blockedPatterns: patch.blockedPatterns ?? [],
+      notes: patch.notes ?? "",
+      source: patch.source ?? "manual-or-agent",
+      verified: Boolean(patch.verified),
+      verificationId: patch.verificationId ?? null,
+    },
+    verification: page.verification
+      ? {
+          id: page.verification.id,
+          status: page.verification.status,
+          completedAt: page.verification.completedAt ?? null,
+          criteria: evidence?.criteria ?? null,
+          delta: evidence?.delta ?? null,
+          visualDiff: evidence?.visualDiff ?? null,
+          screenshots: evidence?.screenshots
+            ? {
+                before: evidence.screenshots.before
+                  ? {
+                      bytes: evidence.screenshots.before.bytes,
+                      sha256: evidence.screenshots.before.sha256,
+                    }
+                  : null,
+                after: evidence.screenshots.after
+                  ? {
+                      bytes: evidence.screenshots.after.bytes,
+                      sha256: evidence.screenshots.after.sha256,
+                    }
+                  : null,
+              }
+            : null,
+        }
+      : null,
+  };
+}
+
+function validateBundle(bundle) {
+  if (!bundle || typeof bundle !== "object" || bundle.schema !== BUNDLE_SCHEMA) {
+    throw Object.assign(new Error(`bundle.schema must be ${BUNDLE_SCHEMA}`), { status: 400 });
+  }
+  if (!bundle.patch || typeof bundle.patch !== "object") {
+    throw Object.assign(new Error("bundle.patch is required"), { status: 400 });
+  }
+  return bundle;
+}
+
 async function handleRequest(req, res) {
   if (req.method === "OPTIONS") {
     res.writeHead(204, CORS_HEADERS);
@@ -264,6 +332,21 @@ async function handleRequest(req, res) {
       pageKey: page?.key ?? pageKey(rawUrl),
       sessionGrant: page ? latestLiveSessionGrant(page) : null,
     });
+    return;
+  }
+
+  if (req.method === "GET" && requestUrl.pathname === "/bundle/export") {
+    const rawUrl = requestUrl.searchParams.get("url");
+    if (!rawUrl) {
+      jsonResponse(res, 400, { error: "url is required" });
+      return;
+    }
+    const page = registry.pages[pageKey(rawUrl)] ?? null;
+    if (!page) {
+      jsonResponse(res, 404, { error: "page not found" });
+      return;
+    }
+    jsonResponse(res, 200, { ok: true, bundle: exportBundle(page) });
     return;
   }
 
@@ -339,6 +422,49 @@ async function handleRequest(req, res) {
     };
     page.patches.unshift(patch);
     page.activePatchId = patch.id;
+    await saveRegistry(registry);
+    jsonResponse(res, 200, { ok: true, page, activePatch: patch });
+    return;
+  }
+
+  if (requestUrl.pathname === "/bundle/import") {
+    const bundle = validateBundle(body.bundle);
+    const targetUrl = body.url || bundle.url;
+    if (!targetUrl) {
+      jsonResponse(res, 400, { error: "url or bundle.url is required" });
+      return;
+    }
+    const page = ensurePage(registry, targetUrl);
+    const importedIntents = Array.isArray(bundle.intents) ? bundle.intents : [];
+    for (const item of importedIntents) {
+      if (item?.text) {
+        page.intents.push({
+          id: makeId("intent"),
+          text: String(item.text).trim(),
+          importedFrom: bundle.page?.key ?? bundle.url ?? null,
+          createdAt: nowIso(),
+        });
+      }
+    }
+    const patch = {
+      id: makeId("patch"),
+      source: "imported-bundle",
+      intentIds: page.intents.map((item) => item.id),
+      css: String(bundle.patch.css ?? ""),
+      js: String(bundle.patch.js ?? ""),
+      blockedPatterns: Array.isArray(bundle.patch.blockedPatterns)
+        ? bundle.patch.blockedPatterns.map(String)
+        : [],
+      notes: String(bundle.patch.notes ?? ""),
+      verified: false,
+      importedFrom: bundle.page?.key ?? bundle.url ?? null,
+      importedVerification: bundle.verification ?? null,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    };
+    page.patches.unshift(patch);
+    page.activePatchId = patch.id;
+    page.verification = null;
     await saveRegistry(registry);
     jsonResponse(res, 200, { ok: true, page, activePatch: patch });
     return;

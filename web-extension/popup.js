@@ -114,6 +114,8 @@ function buildAgentHandoff(tab) {
     `   node bin/page-modifier.mjs verify --url ${shellQuote(url)} --backend cdp --cdp http://127.0.0.1:9333`,
     "6. Return compact evidence:",
     `   node bin/page-modifier.mjs evidence --url ${shellQuote(url)}`,
+    "7. If useful, export a shareable bundle without auth/session state:",
+    `   node bin/page-modifier.mjs export --url ${shellQuote(url)} --out page-modifier.bundle.json`,
     "",
     "Rules: do not scrape password fields or print cookie/storage values; preserve visible content and core workflows unless the intent explicitly says otherwise.",
   ].join("\n");

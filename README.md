@@ -21,13 +21,39 @@ The product promise:
 - Hand the job to the terminal agent through copied CLI instructions or MCP.
 - Let the agent propose, apply, verify, and repair the patch.
 - Keep using the original site or the customized version.
+- Export verified modifications as shareable bundles.
 - Re-run saved intents when the site changes.
 
 Starter use case: while using a slow web app, tell your terminal agent to make
 it feel less laggy by reducing animation, paint, scroll, and task-list jank
 while preserving normal functionality.
 
-It has two pieces:
+## 30-Second Demo Flow
+
+```bash
+npm install
+npm run bridge
+```
+
+Load `web-extension/` as an unpacked Chrome/Brave extension, open a page, write
+an intent, and click `Agent handoff`. Paste the copied handoff into your
+terminal agent.
+
+The agent loop is just CLI/API/MCP:
+
+```bash
+node bin/page-modifier.mjs propose --url "$URL" --intent "$INTENT"
+node bin/page-modifier.mjs patch --url "$URL" --css "$CSS" --js "$JS" --notes "$NOTES"
+node bin/page-modifier.mjs verify --url "$URL" --backend cdp --cdp http://127.0.0.1:9333
+node bin/page-modifier.mjs evidence --url "$URL"
+node bin/page-modifier.mjs export --url "$URL" --out page-modifier.bundle.json
+```
+
+No embedded model account required. Your terminal agent brings the model; Page
+Modifier supplies the browser bridge, persistent patch registry, verifier, and
+shareable bundle format.
+
+It has four pieces:
 
 - `bridge/server.mjs`: local loopback HTTP API and patch registry.
 - `bin/page-modifier.mjs`: terminal-agent CLI.
@@ -73,6 +99,8 @@ node bin/page-modifier.mjs propose --url "$URL" --intent "make this page feel le
 node bin/page-modifier.mjs patch --url "$URL" --css "..." --js "..." --notes "..."
 node bin/page-modifier.mjs verify --url "$URL" --backend cdp --cdp http://127.0.0.1:9333
 node bin/page-modifier.mjs evidence --url "$URL"
+node bin/page-modifier.mjs export --url "$URL" --out bundle.json
+node bin/page-modifier.mjs import --file bundle.json --url "$URL"
 node bin/page-modifier.mjs goal --url "$URL" --intent "make this page feel less laggy" --verify
 node bin/page-modifier.mjs mcp-config
 ```
@@ -106,6 +134,10 @@ MCP tool catalog:
 
 - `page_modifier_status`: inspect bridge health and sanitized page state.
 - `page_modifier_evidence`: inspect compact verification evidence and artifacts.
+- `page_modifier_export_bundle`: export a shareable patch bundle without auth
+  state.
+- `page_modifier_import_bundle`: import a bundle to a target URL as unverified
+  until rechecked.
 - `page_modifier_apply_intent`: save a durable user intent and optional patch.
 - `page_modifier_set_patch`: replace the active CSS/JS patch.
 - `page_modifier_propose_patch`: build an LLM-ready patch-generation prompt from
@@ -128,6 +160,8 @@ The bridge remains useful for raw agent calls:
 - `POST /toggle`
 - `POST /session/grant`
 - `GET /session/latest?url=...`
+- `GET /bundle/export?url=...`
+- `POST /bundle/import`
 - `POST /verify`
 - `POST /verify/result`
 
@@ -233,6 +267,22 @@ node scripts/verify-page.mjs \
 `POST /verify/result` records PASS/FAIL evidence and marks the active patch
 verified when the verifier criteria pass.
 
+## Bundles
+
+Bundles are portable page modifications for terminal agents to share, inspect,
+and re-verify.
+
+```bash
+node bin/page-modifier.mjs export --url "$URL" --out todoist-speedup.bundle.json
+node bin/page-modifier.mjs import --file todoist-speedup.bundle.json --url "$URL"
+node bin/page-modifier.mjs verify --url "$URL" --backend cdp --cdp http://127.0.0.1:9333
+```
+
+Exported bundles include intents, CSS/JS patch material, notes, and verification
+summary. They intentionally exclude captures, cookies, local/session storage,
+and session grants. Imported patches are marked unverified until the verifier
+passes on the target page.
+
 ## Patch Generation
 
 `page-modifier propose` and `page_modifier_propose_patch` intentionally do not
@@ -286,6 +336,7 @@ Repository primitives:
   embedding provider/model calls.
 - Agent scripts for session import, CDP verification, and site-specific demos.
 - Repo-local skills that turn the workflow into repeatable agent loops.
+- Import/export bundles for sharing verified modifications without auth state.
 
 Starter example: `page speedup` intent. The Todoist demo uses a conservative
 reduced-motion patch that aims to make the app feel less laggy without deleting

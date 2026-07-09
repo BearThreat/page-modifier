@@ -67,12 +67,20 @@ Implemented starter patch:
 - `node bin/page-modifier.mjs doctor` checks bridge/package/verifier readiness.
 - `node bin/page-modifier.mjs evidence --url "$URL"` returns compact latest
   verification evidence without full patch bodies.
+- `node bin/page-modifier.mjs export --url "$URL" --out bundle.json` exports a
+  shareable modification bundle without auth/session state.
+- `node bin/page-modifier.mjs import --file bundle.json --url "$URL"` imports a
+  bundle as unverified until rechecked.
 - `node mcp/server.mjs` exposes a stdio MCP server.
 - `GET /page?url=...` returns saved intents, active patch, and verification.
 - `POST /intent` records an intent and creates a starter heuristic patch.
 - `POST /patch` writes an agent-generated CSS/JS patch bundle.
 - `POST /session/grant` stores explicit same-origin cookies/storage for testing.
 - `GET /session/latest?url=...` returns the latest live auth-state grant.
+- `GET /bundle/export?url=...` returns a shareable patch bundle without auth
+  state.
+- `POST /bundle/import` imports a bundle to a target page and marks it
+  unverified.
 - `POST /verify` queues verification.
 - `POST /verify/result` records evidence and marks the patch verified or failed.
 - `node scripts/verify-page.mjs --backend cdp` runs the first-class verifier.
@@ -83,6 +91,10 @@ Implemented starter patch:
   sanitized page state, active patch metadata, and session-grant summaries.
 - `page_modifier_evidence`: use after verification. Returns compact pass/fail
   criteria, visual-diff stats, timing deltas, and screenshot artifact paths.
+- `page_modifier_export_bundle`: use after verification to share a page
+  modification without session/auth data.
+- `page_modifier_import_bundle`: use to install a shared bundle on a target URL;
+  always re-verify afterward.
 - `page_modifier_apply_intent`: use when the user states what they want changed.
   Saves durable intent and optional patch.
 - `page_modifier_set_patch`: use after synthesizing or repairing CSS/JS.
@@ -100,6 +112,7 @@ Implemented starter patch:
 - Session grants expire after 30 minutes.
 - Verifier output reports counts, screenshot paths/hashes, and evidence, not
   cookie/storage values or screenshot base64.
+- Bundles exclude captures, cookies, local/session storage, and session grants.
 - Patches are not considered verified until isolated browser evidence is posted.
 - Model/provider adapters are intentionally not core. The terminal agent brings
   its own model; Page Modifier owns state, actuation, prompt contracts, and
@@ -116,6 +129,6 @@ Implemented starter patch:
 
 - Add richer visual-diff thresholds and screenshot review UI.
 - Add per-site patch version history and rollback.
-- Add import/export bundles for sharing page customizations.
+- Add a small bundle gallery/demo set for common page-speed and declutter fixes.
 - Add browser-managed network blocking for `blockedPatterns`.
 - Package install docs for Chrome, Brave, and OpenClaw plugin discovery.

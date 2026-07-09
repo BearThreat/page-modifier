@@ -59,10 +59,18 @@ node bin/page-modifier.mjs verify --url "$URL" --backend cdp --cdp http://127.0.
 node bin/page-modifier.mjs evidence --url "$URL"
 ```
 
+8. When the result is useful, export a shareable bundle:
+
+```bash
+node bin/page-modifier.mjs export --url "$URL" --out page-modifier.bundle.json
+```
+
 ## Rules
 
 - Do not scrape password fields or print cookies/storage values.
 - Prefer reversible CSS and small JavaScript.
 - Preserve visible content and core workflows unless the user explicitly asks otherwise.
 - Treat failed verification as a repair loop input, not as success.
+- Exported bundles must never include cookies, storage values, captures, or
+  session grants. Re-verify after importing.
 - Use `page-modifier doctor --cdp http://127.0.0.1:9333` when the bridge or verifier path is unclear.

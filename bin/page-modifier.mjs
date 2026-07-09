@@ -17,6 +17,8 @@ function usage() {
     "  doctor                         Check bridge, package files, extension files, and optional CDP",
     "  page --url <url>               Inspect saved intents, active patch, and verification state",
     "  evidence --url <url>           Print compact latest verification/artifact summary",
+    "  export --url <url> [--out f]   Export active patch bundle without auth/session state",
+    "  import --file f [--url <url>]  Import a patch bundle and mark it unverified",
     "  session --url <url>            Inspect latest live session grant summary without values",
     "  intent --url <url> --text <t>  Save a durable page intent",
     "  patch --url <url> [--css <s>] [--js <s>] [--notes <s>] [--blocked <p>]",
@@ -63,6 +65,10 @@ function parseArgs(argv) {
       options.waitMs = Number.parseInt(argv[++i], 10);
     } else if (arg === "--artifacts-dir") {
       options.artifactsDir = argv[++i];
+    } else if (arg === "--out") {
+      options.out = argv[++i];
+    } else if (arg === "--file") {
+      options.file = argv[++i];
     } else if (arg === "--verify") {
       options.verify = true;
     } else if (arg === "--json") {
@@ -149,6 +155,17 @@ async function main() {
   }
   if (options.command === "evidence") {
     emit(await client.evidence(options.url));
+    return;
+  }
+  if (options.command === "export") {
+    emit(await client.exportBundle({ url: options.url, out: options.out }));
+    return;
+  }
+  if (options.command === "import") {
+    if (!options.file) {
+      throw new Error("--file is required for import.");
+    }
+    emit(await client.importBundle({ file: options.file, url: options.url }));
     return;
   }
   if (options.command === "session") {
