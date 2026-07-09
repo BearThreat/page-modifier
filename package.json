@@ -1,0 +1,50 @@
+{
+  "name": "page-modifier",
+  "version": "0.1.0",
+  "private": false,
+  "description": "API/CLI/MCP-first browser page customization and verification service for terminal agents",
+  "type": "module",
+  "bin": {
+    "page-modifier": "./bin/page-modifier.mjs"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "scripts": {
+    "bridge": "node ./bridge/server.mjs",
+    "cli": "node ./bin/page-modifier.mjs",
+    "doctor": "node ./bin/page-modifier.mjs doctor",
+    "mcp": "node ./mcp/server.mjs",
+    "typecheck": "tsc --noEmit",
+    "import-session": "node ./scripts/import-session.mjs",
+    "todoist-speedup-demo": "node ./scripts/todoist-speedup-demo.mjs",
+    "verify-page": "node ./scripts/verify-page.mjs",
+    "verify-page:openclaw": "node ./scripts/verify-page.mjs --backend openclaw",
+    "check": "node --check ./bridge/server.mjs && node --check ./lib/client.mjs && node --check ./bin/page-modifier.mjs && node --check ./mcp/server.mjs && node --check ./scripts/import-session.mjs && node --check ./scripts/todoist-speedup-demo.mjs && node --check ./scripts/verify-page.mjs && node --check ./web-extension/popup.js && node --check ./web-extension/content-script.js && node --check ./web-extension/service-worker.js"
+  },
+  "files": [
+    "bin/",
+    "bridge/",
+    "commands/",
+    "lib/",
+    "mcp/",
+    "scripts/",
+    "skills/",
+    "web-extension/",
+    "index.ts",
+    "openclaw.plugin.json",
+    ".mcp.json",
+    "README.md",
+    "PROJECT.md",
+    "SECURITY.md"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "5.9.2"
+  }
+}

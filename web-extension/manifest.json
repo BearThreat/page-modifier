@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "OpenClaw Page Modifier",
+  "version": "0.1.0",
+  "description": "Capture page intents, persist custom page patches, and reapply OpenClaw modifications.",
+  "permissions": ["activeTab", "cookies", "scripting", "storage"],
+  "host_permissions": ["<all_urls>", "http://127.0.0.1:18793/*"],
+  "action": {
+    "default_title": "OpenClaw Page Modifier",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

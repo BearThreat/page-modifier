@@ -1,0 +1,5 @@
+{
+  "name": "page-modifier",
+  "description": "Durable browser page modification and verification workflows for OpenClaw.",
+  "mcpServers": "./.mcp.json"
+}

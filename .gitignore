@@ -1,0 +1,14 @@
+# Local runtime data may contain same-origin auth-state grants.
+registry.json
+data/
+artifacts/
+*.local.json
+
+# Package/install outputs.
+node_modules/
+dist/
+*.tgz
+
+# Browser verifier profiles and temporary screenshots belong outside git.
+verify-profile/
+screenshots/

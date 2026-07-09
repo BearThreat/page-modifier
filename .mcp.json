@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "pageModifier": {
+      "command": "node",
+      "args": ["./mcp/server.mjs"],
+      "env": {
+        "OPENCLAW_PAGE_MODIFIER_BRIDGE": "http://127.0.0.1:18793"
+      }
+    }
+  }
+}

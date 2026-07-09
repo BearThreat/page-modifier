@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OpenClaw Page Modifier</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <strong>OpenClaw Page Modifier</strong>
+        <span id="status">Checking bridge</span>
+      </header>
+
+      <section>
+        <label for="intent">Intent for this page</label>
+        <textarea id="intent" placeholder="Speed this page up and keep the useful content."></textarea>
+      </section>
+
+      <section class="grid">
+        <button id="capture">Capture</button>
+        <button id="addIntent">Add / update</button>
+        <button id="apply">Apply custom</button>
+        <button id="original">Original</button>
+        <button id="reapply">Reapply latest</button>
+        <button id="verify">Verify</button>
+        <button id="session">Grant session</button>
+        <button id="reloadExtension">Reload extension</button>
+      </section>
+
+      <section>
+        <label for="cssPatch">CSS patch</label>
+        <textarea id="cssPatch" class="code" spellcheck="false"></textarea>
+        <label for="jsPatch">JS patch</label>
+        <textarea id="jsPatch" class="code" spellcheck="false"></textarea>
+        <button id="savePatch">Save patch</button>
+      </section>
+
+      <section id="summary"></section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

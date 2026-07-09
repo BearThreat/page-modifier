@@ -1,0 +1,22 @@
+{
+  "id": "page-modifier",
+  "activation": {
+    "onStartup": false
+  },
+  "name": "Page Modifier",
+  "description": "API/CLI/MCP-first page customization service for durable per-page user intents and verified patch bundles.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "bridgePort": {
+        "type": "number",
+        "minimum": 1024,
+        "maximum": 65535
+      },
+      "dataDir": {
+        "type": "string"
+      }
+    }
+  }
+}
