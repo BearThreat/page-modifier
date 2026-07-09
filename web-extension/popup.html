@@ -21,6 +21,8 @@
       <section class="grid">
         <button id="capture">Capture</button>
         <button id="addIntent">Add / update</button>
+        <button id="agentHandoff">Agent handoff</button>
+        <button id="copyHandoff">Copy handoff</button>
         <button id="apply">Apply custom</button>
         <button id="original">Original</button>
         <button id="reapply">Reapply latest</button>
@@ -30,6 +32,8 @@
       </section>
 
       <section>
+        <label for="agentPrompt">Terminal agent handoff</label>
+        <textarea id="agentPrompt" class="code" spellcheck="false" readonly></textarea>
         <label for="cssPatch">CSS patch</label>
         <textarea id="cssPatch" class="code" spellcheck="false"></textarea>
         <label for="jsPatch">JS patch</label>

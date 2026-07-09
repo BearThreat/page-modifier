@@ -3,11 +3,14 @@ const BRIDGE = "http://127.0.0.1:18793";
 const els = {
   status: document.querySelector("#status"),
   intent: document.querySelector("#intent"),
+  agentPrompt: document.querySelector("#agentPrompt"),
   cssPatch: document.querySelector("#cssPatch"),
   jsPatch: document.querySelector("#jsPatch"),
   summary: document.querySelector("#summary"),
   capture: document.querySelector("#capture"),
   addIntent: document.querySelector("#addIntent"),
+  agentHandoff: document.querySelector("#agentHandoff"),
+  copyHandoff: document.querySelector("#copyHandoff"),
   apply: document.querySelector("#apply"),
   original: document.querySelector("#original"),
   reapply: document.querySelector("#reapply"),
@@ -84,6 +87,50 @@ function render(data) {
   );
 }
 
+function shellQuote(value) {
+  return `'${String(value).replaceAll("'", "'\"'\"'")}'`;
+}
+
+function buildAgentHandoff(tab) {
+  const intent = els.intent.value.trim() || "Improve this page while preserving its core functionality.";
+  const url = tab.url;
+  return [
+    "You are operating Page Modifier from a terminal.",
+    "",
+    `Page URL: ${url}`,
+    `User intent: ${intent}`,
+    "",
+    "Use the local Page Modifier bridge/CLI/MCP surface. Do not ask the browser extension to call a model.",
+    "",
+    "Required loop:",
+    "1. Inspect page state:",
+    `   node bin/page-modifier.mjs page --url ${shellQuote(url)}`,
+    "2. Build the model prompt contract:",
+    `   node bin/page-modifier.mjs propose --url ${shellQuote(url)} --intent ${shellQuote(intent)}`,
+    "3. Use your own model to produce JSON only: {\"css\":\"...\",\"js\":\"...\",\"blockedPatterns\":[],\"notes\":\"...\"}.",
+    "4. Apply the patch:",
+    `   node bin/page-modifier.mjs patch --url ${shellQuote(url)} --css \"$CSS\" --js \"$JS\" --notes \"$NOTES\"`,
+    "5. Verify in an isolated CDP browser:",
+    `   node bin/page-modifier.mjs verify --url ${shellQuote(url)} --backend cdp --cdp http://127.0.0.1:9333`,
+    "6. Return compact evidence:",
+    `   node bin/page-modifier.mjs evidence --url ${shellQuote(url)}`,
+    "",
+    "Rules: do not scrape password fields or print cookie/storage values; preserve visible content and core workflows unless the intent explicitly says otherwise.",
+  ].join("\n");
+}
+
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+  const selection = document.getSelection();
+  els.agentPrompt.focus();
+  els.agentPrompt.select();
+  document.execCommand("copy");
+  selection?.removeAllRanges();
+}
+
 async function capturePage(tab) {
   const result = await sendToContent(tab.id, { type: "OPENCLAW_CAPTURE" });
   return post("/capture", {
@@ -121,6 +168,32 @@ els.addIntent.addEventListener("click", async () => {
     const data = await post("/intent", { url: tab.url, intent: els.intent.value });
     await sendToContent(tab.id, { type: "OPENCLAW_APPLY_PATCH", patch: data.activePatch });
     render(data);
+  } catch (error) {
+    els.summary.textContent = error.message;
+  }
+});
+
+els.agentHandoff.addEventListener("click", async () => {
+  try {
+    const tab = await activeTab();
+    const captured = await capturePage(tab);
+    render(captured);
+    els.agentPrompt.value = buildAgentHandoff(tab);
+    await copyText(els.agentPrompt.value);
+    els.status.textContent = "Agent handoff copied";
+  } catch (error) {
+    els.summary.textContent = error.message;
+  }
+});
+
+els.copyHandoff.addEventListener("click", async () => {
+  try {
+    const tab = await activeTab();
+    if (!els.agentPrompt.value.trim()) {
+      els.agentPrompt.value = buildAgentHandoff(tab);
+    }
+    await copyText(els.agentPrompt.value);
+    els.status.textContent = "Agent handoff copied";
   } catch (error) {
     els.summary.textContent = error.message;
   }

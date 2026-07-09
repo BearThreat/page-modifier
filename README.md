@@ -30,7 +30,8 @@ It has two pieces:
 - `bin/page-modifier.mjs`: terminal-agent CLI.
 - `mcp/server.mjs`: stdio MCP server for agents that prefer tools.
 - `web-extension/`: Chrome/Brave MV3 extension that captures the current page,
-  grants same-origin auth state, and applies the latest patch bundle.
+  grants same-origin auth state, applies the latest patch bundle, and copies a
+  terminal-agent handoff prompt for the active page.
 
 ## Start
 
@@ -49,6 +50,10 @@ Run a local sanity check:
 ```bash
 node bin/page-modifier.mjs doctor
 ```
+
+In the extension popup, use `Agent handoff` after writing an intent. It captures
+the active page and copies a terminal-agent task prompt with the current URL,
+intent, and exact `page-modifier` CLI loop.
 
 ## Terminal Agent Surfaces
 
@@ -139,8 +144,9 @@ Implemented:
 
 - Per-page intent history.
 - Active patch bundle with CSS, JavaScript, blocked URL patterns, and notes.
-- Popup buttons for capture, add/update intent, apply custom, restore original,
-  reapply latest, verify, and grant current session context.
+- Popup buttons for capture, add/update intent, terminal-agent handoff, apply
+  custom, restore original, reapply latest, verify, and grant current session
+  context.
 - Content script applies patches on every load while the bridge is reachable.
 - Local persistence in `~/.openclaw/page-modifier/registry.json`.
 - Todoist starter demo and verifier: `scripts/todoist-speedup-demo.mjs`.
@@ -272,6 +278,8 @@ Repository primitives:
   `~/.openclaw/page-modifier/registry.json`.
 - Agent CLI/MCP surfaces for status, intent, patch, toggle, verification, and
   goal-loop execution.
+- Extension popup handoff that copies a terminal-agent task prompt instead of
+  embedding provider/model calls.
 - Agent scripts for session import, CDP verification, and site-specific demos.
 - Repo-local skills that turn the workflow into repeatable agent loops.
 

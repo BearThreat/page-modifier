@@ -22,10 +22,11 @@ actuator; the expected operator is an agent.
 1. User opens a page and clicks the extension.
 2. Extension captures page summary, metrics, current URL, and saved intents.
 3. User adds an intent such as `make this page feel less laggy`.
-4. Agent writes or updates the active CSS/JS patch bundle.
-5. User can switch between original site mode and custom mode.
-6. Agent verifies the patch in an isolated CDP browser target.
-7. Bridge marks the patch verified only when evidence passes.
+4. Extension copies a terminal-agent handoff prompt with the exact CLI loop.
+5. Agent writes or updates the active CSS/JS patch bundle.
+6. User can switch between original site mode and custom mode.
+7. Agent verifies the patch in an isolated CDP browser target.
+8. Bridge marks the patch verified only when evidence passes.
 
 Agents can drive this through:
 
