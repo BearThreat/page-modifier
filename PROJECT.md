@@ -2,20 +2,20 @@
 
 ## One-liner
 
-Page Modifier is an API/CLI/MCP-first page customization service for terminal
-agents. It lets users permanently customize arbitrary websites with saved
-natural-language intents, generated CSS/JS patches, original/custom reload
-controls, and isolated end-to-end verification. The browser extension is the
-actuator; the expected operator is an agent.
+Page Modifier is a browser-to-terminal-agent bridge for users who browse with a
+terminal agent beside them. It lets agents durably customize arbitrary websites
+with saved natural-language intents, generated CSS/JS patches, original/custom
+reload controls, and isolated end-to-end verification. The browser extension is
+the actuator; the expected operator is the terminal agent.
 
 ## Who It Is For
 
-- Users who want to reshape slow, noisy, cluttered, or broken web pages without
-  waiting for the site owner.
-- Terminal agents that need API/CLI/MCP control over a durable browser-side
-  actuator, not one-off DOM automation.
-- OpenClaw workflows that need to capture page state, carry same-origin auth
-  into an isolated test browser, apply patches, and prove the result works.
+- Terminal-agent users who want to auto-modify webpages while browsing instead
+  of writing one-off snippets in DevTools.
+- Codex, Claude Code, Cline, Cursor, OpenClaw, and similar agents that need
+  API/CLI/MCP control over a durable browser-side actuator.
+- Agent workflows that need to capture page state, carry same-origin auth into
+  an isolated test browser, apply patches, and prove the result works.
 
 ## Core Workflow
 
@@ -38,8 +38,8 @@ Agents can drive this through:
 ## Why This Matters
 
 Normal browser extensions ship fixed features. Page Modifier turns the extension
-into a general per-page modification substrate: the durable unit is the user's
-intent for a page, and agents can keep re-solving that intent as the site
+into a general browser actuator for terminal agents: the durable unit is the
+user's intent for a page, and agents can keep re-solving that intent as the site
 changes.
 
 ## Starter Demo

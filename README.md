@@ -1,28 +1,31 @@
 # Page Modifier
 
-Page Modifier is an API/CLI/MCP-first page customization service for terminal
-agents. The browser extension is the page actuator: it captures the current
-site, grants same-origin auth state for testing, and applies verified patch
-bundles.
+Page Modifier is a browser-to-terminal-agent bridge for people who browse with
+Codex, Claude Code, Cline, Cursor, or another terminal agent beside them. The
+extension captures the page and applies verified patches; the terminal agent
+drives the CLI/API/MCP loop that proposes, repairs, verifies, and re-runs those
+patches.
 
 ## Pitch
 
-Page Modifier lets a user reshape any website in a durable, agent-operable way.
-It is built for terminal agents and OpenClaw first: agents talk to a local HTTP
-API, CLI, or MCP server; the browser extension captures and applies page state;
-and the verifier proves patches in an isolated browser before they are trusted.
+Page Modifier lets terminal-agent users reshape websites while browsing. The
+browser extension is a local actuator and status surface; the agent operates
+through HTTP, CLI, or MCP. The result is a bi-directional loop: the browser gives
+the agent page state and intent, then the agent writes back verified CSS/JS
+patches the browser can apply.
 
 The product promise:
 
-- Open the extension on a problematic page.
-- Tell the agent what you want changed.
-- Save that intent to the page/origin.
-- Let OpenClaw create and verify a patch in an isolated browser.
+- Browse to a slow, noisy, broken, or repetitive page.
+- Capture the page and intent from the extension.
+- Hand the job to the terminal agent through copied CLI instructions or MCP.
+- Let the agent propose, apply, verify, and repair the patch.
 - Keep using the original site or the customized version.
-- Re-run all saved intents against the newest page whenever the site changes.
+- Re-run saved intents when the site changes.
 
-Starter use case: make a slow web app feel less laggy by reducing animation,
-paint, scroll, and task-list jank while preserving normal functionality.
+Starter use case: while using a slow web app, tell your terminal agent to make
+it feel less laggy by reducing animation, paint, scroll, and task-list jank
+while preserving normal functionality.
 
 It has two pieces:
 
@@ -268,7 +271,8 @@ The demo:
 
 ## GitHub Project Shape
 
-Positioning: terminal-agent/OpenClaw-friendly arbitrary page customization.
+Positioning: browser-to-terminal-agent webpage customization for people who
+want their agent to modify sites while they browse.
 
 Repository primitives:
 

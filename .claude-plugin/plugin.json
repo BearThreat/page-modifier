@@ -1,5 +1,5 @@
 {
   "name": "page-modifier",
-  "description": "Durable browser page modification and verification workflows for OpenClaw.",
+  "description": "Browser-to-terminal-agent bridge for verified webpage modification workflows.",
   "mcpServers": "./.mcp.json"
 }

@@ -2,7 +2,7 @@
   "name": "page-modifier",
   "version": "0.1.0",
   "private": false,
-  "description": "API/CLI/MCP-first browser page customization and verification service for terminal agents",
+  "description": "Browser-to-terminal-agent bridge for auto-modifying webpages through CLI, API, and MCP",
   "type": "module",
   "bin": {
     "page-modifier": "./bin/page-modifier.mjs"
