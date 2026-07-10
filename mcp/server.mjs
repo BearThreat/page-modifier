@@ -80,6 +80,122 @@ server.tool(
 );
 
 server.tool(
+  "page_modifier_jobs",
+  "List browser-submitted Page Modifier jobs for terminal agents. Use status=queued to find work, status=all for history, or url to inspect jobs for the current page.",
+  {
+    bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
+    status: z.enum(["queued", "working", "verified", "failed", "blocked", "all"]).optional(),
+    url: z.string().url().optional().describe("Optional absolute page URL filter."),
+  },
+  async ({ bridge, status, url }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.listJobs({ status: status ?? "queued", url });
+      return textResult(`page modifier jobs: ${result.jobs?.length ?? 0}`, { result });
+    } catch (error) {
+      return errorResult(error);
+    }
+  },
+);
+
+server.tool(
+  "page_modifier_create_job",
+  "Create a Page Modifier job from a browser/page intent. The browser extension normally calls this; agents may use it to enqueue a page customization for the same queue.",
+  {
+    bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
+    url: z.string().url().describe("Absolute page URL to customize."),
+    intent: z.string().min(1).describe("User intent for the page."),
+  },
+  async ({ bridge, url, intent }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.createJob({ url, intent });
+      return textResult(`created page modifier job ${result.job?.id ?? ""}`, { result });
+    } catch (error) {
+      return errorResult(error);
+    }
+  },
+);
+
+server.tool(
+  "page_modifier_claim_job",
+  "Claim the next queued Page Modifier job, or a specific job by id, so the terminal agent can synthesize a patch and write verified results back.",
+  {
+    bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
+    job_id: z.string().optional().describe("Optional job id. Without one, claims the newest queued job."),
+    agent_id: z.string().optional().describe("Human-readable terminal agent id."),
+  },
+  async ({ bridge, job_id, agent_id }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.claimJob({ jobId: job_id, agentId: agent_id });
+      return textResult(`claimed page modifier job ${result.job?.id ?? ""}`, { result });
+    } catch (error) {
+      return errorResult(error);
+    }
+  },
+);
+
+server.tool(
+  "page_modifier_solve_job",
+  "Claim a queued Page Modifier job, apply a conservative agent-generated patch, optionally verify it, and update the browser-visible job status. Use this for a full terminal-agent queue loop.",
+  {
+    ...verifierSchema,
+    job_id: z.string().optional().describe("Optional job id. Without one, claims the newest queued job."),
+    agent_id: z.string().optional().describe("Human-readable terminal agent id."),
+    verify: z.boolean().optional().describe("When true, run isolated verification after patching."),
+  },
+  async ({ bridge, job_id, agent_id, verify, backend, cdp, profile, wait_ms, artifacts_dir }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.solveJob({
+        jobId: job_id,
+        agentId: agent_id,
+        verify: verify === true,
+        backend: backend ?? "cdp",
+        cdp,
+        profile,
+        waitMs: wait_ms,
+        artifactsDir: artifacts_dir,
+      });
+      return textResult(`page modifier job ${result.ok ? "solved" : "failed"} ${result.job?.id ?? ""}`, {
+        result,
+      });
+    } catch (error) {
+      return errorResult(error);
+    }
+  },
+);
+
+server.tool(
+  "page_modifier_complete_job",
+  "Mark a Page Modifier job verified, failed, or blocked when the terminal agent has evidence from its patch/verification loop. Use blocked for honest unresolved cases.",
+  {
+    bridge: z.string().url().optional().describe(`Bridge URL. Default: ${DEFAULT_BRIDGE}`),
+    job_id: z.string().describe("Job id to complete."),
+    status: z.enum(["verified", "failed", "blocked"]).describe("Final browser-visible job status."),
+    active_patch_id: z.string().optional().describe("Active patch id associated with this completion."),
+    verification_id: z.string().optional().describe("Verification id associated with this completion."),
+    error: z.string().optional().describe("Failure or blocked reason."),
+  },
+  async ({ bridge, job_id, status, active_patch_id, verification_id, error }) => {
+    try {
+      const client = clientFor(bridge);
+      const result = await client.completeJob({
+        jobId: job_id,
+        status,
+        activePatchId: active_patch_id,
+        verificationId: verification_id,
+        error,
+      });
+      return textResult(`page modifier job ${job_id} marked ${status}`, { result });
+    } catch (err) {
+      return errorResult(err);
+    }
+  },
+);
+
+server.tool(
   "page_modifier_evidence",
   "Return a compact latest verification summary for a tracked page, including active patch metadata, pass/fail criteria, timing deltas, visual-diff stats, and screenshot artifact paths without full patch bodies.",
   {

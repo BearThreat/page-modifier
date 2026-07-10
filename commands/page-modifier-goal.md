@@ -13,11 +13,14 @@ The `page-modifier` repository root.
 Product target:
 
 - Primary surface is API/CLI/MCP for terminal agents.
-- Browser extension is the page actuator: capture, explicit same-origin session
-  grant, original/custom toggle, and patch application.
+- Browser extension is the page actuator and status surface: capture,
+  explicit same-origin session grant, queued job creation, original/custom
+  toggle, patch application, and live job status.
 - Bridge is the local loopback state/API plane.
 - CLI and MCP are the expected agent control surfaces.
 - Verification is isolated CDP-first and writes screenshot/visual-diff evidence.
+- Product loop is job-based: browser queues intent -> terminal agent claims job
+  -> agent patches/verifies -> bridge writes status -> extension displays it.
 - Patch generation is agent-operable: build a sanitized prompt contract, have
   the terminal agent's own model produce JSON patch material, apply it, verify
   it, and repeat until verified or honestly blocked.
@@ -49,7 +52,22 @@ Loop:
    node bin/page-modifier.mjs doctor
    ```
 
-2. Inspect page state:
+2. Inspect queued jobs and page state:
+
+   ```bash
+   node bin/page-modifier.mjs jobs --status queued
+   ```
+
+   If the browser did not enqueue a job, create one through the `/goal` command:
+
+   ```bash
+   node bin/page-modifier.mjs goal \
+     --url "$URL" \
+     --intent "Make Todoist feel less laggy: reduce animation, scrolling, paint, and task-list jank while preserving normal functionality." \
+     --enqueue
+   ```
+
+   Then inspect page state:
 
    ```bash
    node bin/page-modifier.mjs page --url "$URL"
@@ -128,13 +146,42 @@ Loop:
    - Apply a narrower patch.
    - Repeat verification.
 
+10. Queue shortcut:
+
+   ```bash
+   node bin/page-modifier.mjs solve \
+     --verify \
+     --backend cdp \
+     --cdp http://127.0.0.1:9333 \
+     --artifacts-dir ~/.openclaw/page-modifier/artifacts
+   ```
+
+   End-to-end one-command smoke:
+
+   ```bash
+   node bin/page-modifier.mjs goal \
+     --url "$URL" \
+     --intent "Make Todoist feel less laggy: reduce animation, scrolling, paint, and task-list jank while preserving normal functionality." \
+     --enqueue \
+     --solve \
+     --verify \
+     --backend cdp \
+     --cdp http://127.0.0.1:9333
+   ```
+
 Acceptance criteria:
 
 - `npm run check` passes.
 - `npx tsc --noEmit` passes when TypeScript is available.
-- CLI `health`, `doctor`, `page`, `propose`, `verify`, and `evidence` work.
+- CLI `health`, `doctor`, `jobs`, `claim`, `solve`, `page`, `propose`,
+  `verify`, `evidence`, and `complete` work.
 - MCP server lists these tools:
   - `page_modifier_status`
+  - `page_modifier_jobs`
+  - `page_modifier_create_job`
+  - `page_modifier_claim_job`
+  - `page_modifier_solve_job`
+  - `page_modifier_complete_job`
   - `page_modifier_evidence`
   - `page_modifier_apply_intent`
   - `page_modifier_set_patch`

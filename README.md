@@ -17,9 +17,11 @@ patches the browser can apply.
 The product promise:
 
 - Browse to a slow, noisy, broken, or repetitive page.
-- Capture the page and intent from the extension.
-- Hand the job to the terminal agent through copied CLI instructions or MCP.
-- Let the agent propose, apply, verify, and repair the patch.
+- Capture the page and intent from the extension with `Send to agent`.
+- The browser writes a queued job to the local bridge.
+- A terminal agent claims the job through CLI/API/MCP.
+- The agent proposes, applies, verifies, and repairs the patch.
+- The extension shows live job state: queued -> working -> verified/failed.
 - Keep using the original site or the customized version.
 - Export verified modifications as shareable bundles.
 - Re-run saved intents when the site changes.
@@ -36,12 +38,21 @@ npm run bridge
 ```
 
 Load `web-extension/` as an unpacked Chrome/Brave extension, open a page, write
-an intent, and click `Agent handoff`. Paste the copied handoff into your
-terminal agent.
+an intent, and click `Send to agent`. In your terminal agent, claim and solve the
+queued job:
+
+```bash
+node bin/page-modifier.mjs jobs
+node bin/page-modifier.mjs claim
+node bin/page-modifier.mjs solve --verify --backend cdp --cdp http://127.0.0.1:9333
+node bin/page-modifier.mjs evidence --url "$URL"
+```
 
 The agent loop is just CLI/API/MCP:
 
 ```bash
+node bin/page-modifier.mjs jobs --status queued
+node bin/page-modifier.mjs claim
 node bin/page-modifier.mjs propose --url "$URL" --intent "$INTENT"
 node bin/page-modifier.mjs patch --url "$URL" --css "$CSS" --js "$JS" --notes "$NOTES"
 node bin/page-modifier.mjs verify --url "$URL" --backend cdp --cdp http://127.0.0.1:9333
@@ -59,8 +70,9 @@ It has four pieces:
 - `bin/page-modifier.mjs`: terminal-agent CLI.
 - `mcp/server.mjs`: stdio MCP server for agents that prefer tools.
 - `web-extension/`: Chrome/Brave MV3 extension that captures the current page,
-  grants same-origin auth state, applies the latest patch bundle, and copies a
-  terminal-agent handoff prompt for the active page.
+  grants same-origin auth state, applies the latest patch bundle, queues
+  terminal-agent jobs, shows live job status, and keeps copied handoff prompts as
+  a fallback.
 
 ## Start
 
@@ -80,9 +92,9 @@ Run a local sanity check:
 node bin/page-modifier.mjs doctor
 ```
 
-In the extension popup, use `Agent handoff` after writing an intent. It captures
-the active page and copies a terminal-agent task prompt with the current URL,
-intent, and exact `page-modifier` CLI loop.
+In the extension popup, use `Send to agent` after writing an intent. It captures
+the active page, creates a bridge job, and shows the job status while a terminal
+agent works through CLI/API/MCP. `Copy handoff` remains as a fallback prompt.
 
 ## Terminal Agent Surfaces
 
@@ -93,6 +105,10 @@ cd page-modifier
 
 node bin/page-modifier.mjs health
 node bin/page-modifier.mjs doctor
+node bin/page-modifier.mjs jobs --status queued
+node bin/page-modifier.mjs claim
+node bin/page-modifier.mjs solve --verify --backend cdp --cdp http://127.0.0.1:9333
+node bin/page-modifier.mjs complete --job-id "$JOB_ID" --status blocked --notes "$REASON"
 node bin/page-modifier.mjs page --url "$URL"
 node bin/page-modifier.mjs intent --url "$URL" --text "make this page feel less laggy"
 node bin/page-modifier.mjs propose --url "$URL" --intent "make this page feel less laggy"
@@ -101,7 +117,8 @@ node bin/page-modifier.mjs verify --url "$URL" --backend cdp --cdp http://127.0.
 node bin/page-modifier.mjs evidence --url "$URL"
 node bin/page-modifier.mjs export --url "$URL" --out bundle.json
 node bin/page-modifier.mjs import --file bundle.json --url "$URL"
-node bin/page-modifier.mjs goal --url "$URL" --intent "make this page feel less laggy" --verify
+node bin/page-modifier.mjs goal --url "$URL" --intent "make this page feel less laggy" --enqueue
+node bin/page-modifier.mjs goal --url "$URL" --intent "make this page feel less laggy" --enqueue --solve --verify
 node bin/page-modifier.mjs mcp-config
 ```
 
@@ -133,6 +150,14 @@ The bundled `.mcp.json` exposes a stdio server:
 MCP tool catalog:
 
 - `page_modifier_status`: inspect bridge health and sanitized page state.
+- `page_modifier_jobs`: list queued, working, verified, failed, blocked, or all
+  browser-submitted jobs.
+- `page_modifier_create_job`: enqueue a page customization job.
+- `page_modifier_claim_job`: claim the next queued job for a terminal agent.
+- `page_modifier_solve_job`: claim, patch, optionally verify, and write status
+  back for the browser.
+- `page_modifier_complete_job`: mark a job verified, failed, or blocked when an
+  agent has external evidence.
 - `page_modifier_evidence`: inspect compact verification evidence and artifacts.
 - `page_modifier_export_bundle`: export a shareable patch bundle without auth
   state.
@@ -154,6 +179,12 @@ The bridge remains useful for raw agent calls:
 
 - `GET /health`
 - `GET /page?url=...`
+- `GET /jobs?status=queued|working|verified|failed|blocked|all&url=...`
+- `GET /job?id=...` or `GET /job?url=...`
+- `POST /jobs`
+- `POST /jobs/claim`
+- `POST /jobs/complete`
+- `POST /jobs/fail`
 - `POST /capture`
 - `POST /intent`
 - `POST /patch`
@@ -182,8 +213,10 @@ Implemented:
 - Per-page intent history.
 - Active patch bundle with CSS, JavaScript, blocked URL patterns, and notes.
 - Popup buttons for capture, add/update intent, terminal-agent handoff, apply
-  custom, restore original, reapply latest, verify, and grant current session
-  context.
+  custom, restore original, reapply latest, verify, grant current session
+  context, and send the current page intent to the terminal-agent queue.
+- Browser-visible job status polling for queued, working, verified, failed, and
+  blocked jobs.
 - Content script applies patches on every load while the bridge is reachable.
 - Local persistence in `~/.openclaw/page-modifier/registry.json`.
 - Todoist starter demo and verifier: `scripts/todoist-speedup-demo.mjs`.

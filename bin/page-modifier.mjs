@@ -19,12 +19,20 @@ function usage() {
     "  evidence --url <url>           Print compact latest verification/artifact summary",
     "  export --url <url> [--out f]   Export active patch bundle without auth/session state",
     "  import --file f [--url <url>]  Import a patch bundle and mark it unverified",
+    "  jobs [--status queued|working|verified|failed|all] [--url <url>]",
+    "                                 List browser-submitted agent jobs",
+    "  job --job-id <id>              Inspect one agent job",
+    "  claim [--job-id <id>]          Claim the next queued job for this terminal agent",
+    "  solve [--job-id <id>] [--verify] Claim, patch, optionally verify, and update job status",
+    "  complete --job-id <id> --status verified|failed|blocked",
+    "                                 Mark a job complete when an agent has external evidence",
+    "  fail --job-id <id> --notes <s> Mark a job failed/blocked with a reason",
     "  session --url <url>            Inspect latest live session grant summary without values",
     "  intent --url <url> --text <t>  Save a durable page intent",
     "  patch --url <url> [--css <s>] [--js <s>] [--notes <s>] [--blocked <p>]",
     "  toggle --url <url> --enabled <true|false>",
     "  verify --url <url> [--backend cdp] [--cdp http://127.0.0.1:9333]",
-    "  goal --url <url> [--intent <t>] [--css <s>] [--js <s>] [--verify]",
+    "  goal --url <url> [--intent <t>] [--enqueue] [--solve] [--css <s>] [--js <s>] [--verify]",
     "  propose --url <url> --intent <t>  Print an LLM-ready patch prompt",
     "  mcp-config                     Print a stdio MCP config snippet",
     "",
@@ -61,6 +69,16 @@ function parseArgs(argv) {
       options.cdp = argv[++i];
     } else if (arg === "--profile") {
       options.profile = argv[++i];
+    } else if (arg === "--job-id") {
+      options.jobId = argv[++i];
+    } else if (arg === "--agent-id") {
+      options.agentId = argv[++i];
+    } else if (arg === "--status") {
+      options.status = argv[++i];
+    } else if (arg === "--active-patch-id") {
+      options.activePatchId = argv[++i];
+    } else if (arg === "--verification-id") {
+      options.verificationId = argv[++i];
     } else if (arg === "--wait-ms") {
       options.waitMs = Number.parseInt(argv[++i], 10);
     } else if (arg === "--artifacts-dir") {
@@ -71,6 +89,10 @@ function parseArgs(argv) {
       options.file = argv[++i];
     } else if (arg === "--verify") {
       options.verify = true;
+    } else if (arg === "--enqueue") {
+      options.enqueue = true;
+    } else if (arg === "--solve") {
+      options.solve = true;
     } else if (arg === "--json") {
       options.json = true;
     } else if (arg === "-h" || arg === "--help") {
@@ -153,6 +175,49 @@ async function main() {
     emit(await client.page(options.url));
     return;
   }
+  if (options.command === "jobs") {
+    emit(await client.listJobs({ status: options.status ?? "queued", url: options.url }));
+    return;
+  }
+  if (options.command === "job") {
+    emit(await client.job({ jobId: options.jobId, url: options.url }));
+    return;
+  }
+  if (options.command === "claim") {
+    emit(await client.claimJob({ jobId: options.jobId, agentId: options.agentId }));
+    return;
+  }
+  if (options.command === "solve") {
+    emit(
+      await client.solveJob({
+        jobId: options.jobId,
+        agentId: options.agentId,
+        verify: options.verify === true,
+        backend: options.backend ?? "cdp",
+        cdp: options.cdp,
+        profile: options.profile,
+        waitMs: options.waitMs,
+        artifactsDir: options.artifactsDir,
+      }),
+    );
+    return;
+  }
+  if (options.command === "complete") {
+    emit(
+      await client.completeJob({
+        jobId: options.jobId,
+        status: options.status,
+        activePatchId: options.activePatchId,
+        verificationId: options.verificationId,
+        error: options.notes,
+      }),
+    );
+    return;
+  }
+  if (options.command === "fail") {
+    emit(await client.failJob({ jobId: options.jobId, error: options.notes }));
+    return;
+  }
   if (options.command === "evidence") {
     emit(await client.evidence(options.url));
     return;
@@ -184,6 +249,7 @@ async function main() {
         js: options.js,
         notes: options.notes,
         blockedPatterns: options.blocked,
+        jobId: options.jobId,
       }),
     );
     return;
@@ -216,6 +282,9 @@ async function main() {
         url: options.url,
         intent: options.intent,
         patch: patchFromOptions(options),
+        enqueue: options.enqueue === true,
+        solve: options.solve === true,
+        agentId: options.agentId,
         verify: options.verify === true,
         backend: options.backend ?? "cdp",
         cdp: options.cdp,

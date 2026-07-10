@@ -7,6 +7,7 @@ const els = {
   cssPatch: document.querySelector("#cssPatch"),
   jsPatch: document.querySelector("#jsPatch"),
   summary: document.querySelector("#summary"),
+  jobStatus: document.querySelector("#jobStatus"),
   capture: document.querySelector("#capture"),
   addIntent: document.querySelector("#addIntent"),
   agentHandoff: document.querySelector("#agentHandoff"),
@@ -71,6 +72,7 @@ async function currentOriginCookies(url) {
 function render(data) {
   const page = data.page ?? data;
   const activePatch = data.activePatch ?? null;
+  renderJob(data.latestJob ?? data.job ?? null);
   els.cssPatch.value = activePatch?.css ?? els.cssPatch.value;
   els.jsPatch.value = activePatch?.js ?? els.jsPatch.value;
   els.summary.textContent = JSON.stringify(
@@ -81,10 +83,19 @@ function render(data) {
       activePatchId: page?.activePatchId,
       notes: activePatch?.notes,
       verification: page?.verification?.status,
+      latestJob: data.latestJob?.status ?? data.job?.status ?? null,
     },
     null,
     2,
   );
+}
+
+function renderJob(job) {
+  if (!job?.id) {
+    els.jobStatus.textContent = "No queued job for this page.";
+    return;
+  }
+  els.jobStatus.textContent = `${job.status.toUpperCase()} ${job.id}\n${job.intent ?? ""}`.trim();
 }
 
 function shellQuote(value) {
@@ -103,7 +114,8 @@ function buildAgentHandoff(tab) {
     "Use the local Page Modifier bridge/CLI/MCP surface. Do not ask the browser extension to call a model.",
     "",
     "Required loop:",
-    "1. Inspect page state:",
+    "1. Claim the queued browser job, or inspect page state if no job exists:",
+    "   node bin/page-modifier.mjs claim",
     `   node bin/page-modifier.mjs page --url ${shellQuote(url)}`,
     "2. Build the model prompt contract:",
     `   node bin/page-modifier.mjs propose --url ${shellQuote(url)} --intent ${shellQuote(intent)}`,
@@ -116,6 +128,9 @@ function buildAgentHandoff(tab) {
     `   node bin/page-modifier.mjs evidence --url ${shellQuote(url)}`,
     "7. If useful, export a shareable bundle without auth/session state:",
     `   node bin/page-modifier.mjs export --url ${shellQuote(url)} --out page-modifier.bundle.json`,
+    "",
+    "Shortcut for the current queue primitive:",
+    "   node bin/page-modifier.mjs solve --verify --backend cdp --cdp http://127.0.0.1:9333",
     "",
     "Rules: do not scrape password fields or print cookie/storage values; preserve visible content and core workflows unless the intent explicitly says otherwise.",
   ].join("\n");
@@ -142,6 +157,26 @@ async function capturePage(tab) {
   });
 }
 
+async function createAgentJob(tab) {
+  const latestCapture = await sendToContent(tab.id, { type: "OPENCLAW_CAPTURE" });
+  const intent = els.intent.value.trim() || "Improve this page while preserving its core functionality.";
+  return post("/jobs", {
+    url: tab.url,
+    intent,
+    capture: {
+      url: tab.url,
+      title: tab.title,
+      ...latestCapture,
+    },
+  });
+}
+
+async function refreshJob(tab) {
+  const data = await bridge(`/job?url=${encodeURIComponent(tab.url)}`);
+  renderJob(data.job);
+  return data;
+}
+
 async function refresh() {
   try {
     await bridge("/health");
@@ -149,6 +184,11 @@ async function refresh() {
     const tab = await activeTab();
     const data = await bridge(`/page?url=${encodeURIComponent(tab.url)}`);
     render(data);
+    try {
+      await refreshJob(tab);
+    } catch {
+      renderJob(null);
+    }
   } catch (error) {
     els.status.textContent = "Bridge offline";
     els.summary.textContent = error.message;
@@ -178,11 +218,10 @@ els.addIntent.addEventListener("click", async () => {
 els.agentHandoff.addEventListener("click", async () => {
   try {
     const tab = await activeTab();
-    const captured = await capturePage(tab);
-    render(captured);
+    const data = await createAgentJob(tab);
+    render(data);
     els.agentPrompt.value = buildAgentHandoff(tab);
-    await copyText(els.agentPrompt.value);
-    els.status.textContent = "Agent handoff copied";
+    els.status.textContent = "Sent to agent queue";
   } catch (error) {
     els.summary.textContent = error.message;
   }
@@ -274,3 +313,8 @@ els.savePatch.addEventListener("click", async () => {
 });
 
 refresh();
+setInterval(() => {
+  activeTab()
+    .then(refreshJob)
+    .catch(() => {});
+}, 2000);

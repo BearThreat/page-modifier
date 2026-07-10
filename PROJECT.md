@@ -20,13 +20,15 @@ the actuator; the expected operator is the terminal agent.
 ## Core Workflow
 
 1. User opens a page and clicks the extension.
-2. Extension captures page summary, metrics, current URL, and saved intents.
-3. User adds an intent such as `make this page feel less laggy`.
-4. Extension copies a terminal-agent handoff prompt with the exact CLI loop.
-5. Agent writes or updates the active CSS/JS patch bundle.
-6. User can switch between original site mode and custom mode.
+2. Extension captures page summary, metrics, current URL, and saved intent.
+3. User clicks `Send to agent`.
+4. Bridge creates a queued job with page URL, intent, and capture pointer.
+5. Terminal agent claims the job through CLI/API/MCP.
+6. Agent writes or updates the active CSS/JS patch bundle.
 7. Agent verifies the patch in an isolated CDP browser target.
-8. Bridge marks the patch verified only when evidence passes.
+8. Bridge marks the patch/job verified only when evidence passes.
+9. Extension shows queued -> working -> verified/failed status and lets the user
+   switch between original site mode and custom mode.
 
 Agents can drive this through:
 
@@ -65,6 +67,15 @@ Implemented starter patch:
 - `node bridge/server.mjs` starts the loopback registry and API.
 - `node bin/page-modifier.mjs ...` exposes terminal-agent CLI commands.
 - `node bin/page-modifier.mjs doctor` checks bridge/package/verifier readiness.
+- `node bin/page-modifier.mjs jobs --status queued` lists browser-submitted jobs.
+- `node bin/page-modifier.mjs claim` claims the newest queued job for a terminal
+  agent.
+- `node bin/page-modifier.mjs solve --verify` claims, patches, verifies, and
+  writes browser-visible status.
+- `node bin/page-modifier.mjs complete --job-id "$JOB_ID" --status blocked
+  --notes "$REASON"` lets agents honestly close unresolved jobs.
+- `node bin/page-modifier.mjs goal --url "$URL" --intent "..." --enqueue --solve
+  --verify` exercises the product loop from one command.
 - `node bin/page-modifier.mjs evidence --url "$URL"` returns compact latest
   verification evidence without full patch bodies.
 - `node bin/page-modifier.mjs export --url "$URL" --out bundle.json` exports a
@@ -73,6 +84,14 @@ Implemented starter patch:
   bundle as unverified until rechecked.
 - `node mcp/server.mjs` exposes a stdio MCP server.
 - `GET /page?url=...` returns saved intents, active patch, and verification.
+- `GET /jobs?status=...` returns queued/working/history jobs for terminal
+  agents.
+- `GET /job?id=...` or `GET /job?url=...` returns one job plus sanitized page
+  context.
+- `POST /jobs` queues a browser-originated page modification job.
+- `POST /jobs/claim` marks a job working for a terminal agent.
+- `POST /jobs/complete` and `POST /jobs/fail` write final browser-visible job
+  state.
 - `POST /intent` records an intent and creates a starter heuristic patch.
 - `POST /patch` writes an agent-generated CSS/JS patch bundle.
 - `POST /session/grant` stores explicit same-origin cookies/storage for testing.
@@ -89,6 +108,13 @@ Implemented starter patch:
 
 - `page_modifier_status`: use before modifying a page. Returns bridge health,
   sanitized page state, active patch metadata, and session-grant summaries.
+- `page_modifier_jobs`: list browser-submitted jobs by status or URL.
+- `page_modifier_create_job`: create a queued page customization job.
+- `page_modifier_claim_job`: claim the next queued job or a specific job.
+- `page_modifier_solve_job`: claim, patch, optionally verify, and write job
+  status back for the extension.
+- `page_modifier_complete_job`: mark a job verified, failed, or blocked with
+  evidence references or an honest blocker reason.
 - `page_modifier_evidence`: use after verification. Returns compact pass/fail
   criteria, visual-diff stats, timing deltas, and screenshot artifact paths.
 - `page_modifier_export_bundle`: use after verification to share a page

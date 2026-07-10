@@ -27,6 +27,13 @@ function makeId(prefix) {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function ensureRegistryShape(registry) {
+  if (!registry.jobs || typeof registry.jobs !== "object" || Array.isArray(registry.jobs)) {
+    registry.jobs = {};
+  }
+  return registry;
+}
+
 function normalizeUrl(rawUrl) {
   const parsed = new URL(rawUrl);
   parsed.hash = "";
@@ -72,12 +79,12 @@ async function loadRegistry() {
     if (!parsed || typeof parsed !== "object" || !parsed.pages) {
       throw new Error("Invalid registry shape");
     }
-    return parsed;
+    return ensureRegistryShape(parsed);
   } catch (error) {
     if (error.code !== "ENOENT") {
       console.warn(`[page-modifier] ignoring invalid registry: ${error.message}`);
     }
-    return { version: 1, pages: {} };
+    return { version: 1, pages: {}, jobs: {} };
   }
 }
 
@@ -124,6 +131,96 @@ function summarizeCapture(body) {
     domSummary: String(body.domSummary ?? "").slice(0, 20000),
     createdAt: nowIso(),
   };
+}
+
+function summarizeJob(job) {
+  return {
+    id: job.id,
+    url: job.url,
+    pageKey: job.pageKey,
+    intent: job.intent,
+    status: job.status,
+    activePatchId: job.activePatchId ?? null,
+    verificationId: job.verificationId ?? null,
+    agentId: job.agentId ?? null,
+    error: job.error ?? null,
+    completionNote: job.completionNote ?? null,
+    createdAt: job.createdAt,
+    updatedAt: job.updatedAt,
+    claimedAt: job.claimedAt ?? null,
+    completedAt: job.completedAt ?? null,
+  };
+}
+
+function listJobs(registry, filters = {}) {
+  const jobs = Object.values(registry.jobs ?? {});
+  return jobs
+    .filter((job) => {
+      if (filters.status && filters.status !== "all" && job.status !== filters.status) {
+        return false;
+      }
+      if (filters.url && job.pageKey !== pageKey(filters.url)) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+
+function jobDetail(registry, job) {
+  const page = registry.pages[job.pageKey] ?? null;
+  return {
+    job: summarizeJob(job),
+    page,
+    activePatch: page ? activePatch(page) : null,
+  };
+}
+
+function latestJobForPage(registry, rawUrl) {
+  return listJobs(registry, { url: rawUrl })[0] ?? null;
+}
+
+function firstClaimableJob(registry, requestedId = null) {
+  if (requestedId) {
+    const job = registry.jobs?.[requestedId] ?? null;
+    if (!job || !["queued", "failed"].includes(job.status)) {
+      return null;
+    }
+    return job;
+  }
+  return listJobs(registry, { status: "queued" })[0] ?? null;
+}
+
+function createJob(registry, body) {
+  const page = ensurePage(registry, body.url);
+  const capture = body.capture && typeof body.capture === "object" ? summarizeCapture(body.capture) : null;
+  if (capture) {
+    page.captures.unshift(capture);
+    page.captures = page.captures.slice(0, 20);
+  }
+  const intent = {
+    id: makeId("intent"),
+    text: String(body.intent).trim(),
+    createdAt: nowIso(),
+    source: "agent-job",
+  };
+  page.intents.push(intent);
+  const job = {
+    id: makeId("job"),
+    url: body.url,
+    pageKey: page.key,
+    intent: intent.text,
+    intentId: intent.id,
+    captureId: capture?.id ?? null,
+    status: "queued",
+    activePatchId: null,
+    verificationId: null,
+    agentId: null,
+    createdAt: nowIso(),
+    updatedAt: nowIso(),
+  };
+  registry.jobs[job.id] = job;
+  return { job, page };
 }
 
 function heuristicPatchForIntent(intentText) {
@@ -302,6 +399,7 @@ async function handleRequest(req, res) {
       service: "openclaw-page-modifier",
       dataDir: DATA_DIR,
       registryPath: REGISTRY_PATH,
+      jobCount: Object.keys(registry.jobs ?? {}).length,
     });
     return;
   }
@@ -314,10 +412,36 @@ async function handleRequest(req, res) {
     }
     const key = pageKey(rawUrl);
     const page = registry.pages[key] ?? null;
+    const latestJob = page ? latestJobForPage(registry, rawUrl) : null;
     jsonResponse(res, 200, {
       page,
       activePatch: page ? activePatch(page) : null,
+      latestJob: latestJob ? summarizeJob(latestJob) : null,
     });
+    return;
+  }
+
+  if (req.method === "GET" && requestUrl.pathname === "/jobs") {
+    const status = requestUrl.searchParams.get("status") ?? "queued";
+    const rawUrl = requestUrl.searchParams.get("url");
+    const jobs = listJobs(registry, { status, url: rawUrl || undefined }).map(summarizeJob);
+    jsonResponse(res, 200, { ok: true, status, jobs });
+    return;
+  }
+
+  if (req.method === "GET" && requestUrl.pathname === "/job") {
+    const jobId = requestUrl.searchParams.get("id");
+    const rawUrl = requestUrl.searchParams.get("url");
+    const job = jobId
+      ? registry.jobs?.[jobId] ?? null
+      : rawUrl
+        ? latestJobForPage(registry, rawUrl)
+        : null;
+    if (!job) {
+      jsonResponse(res, 404, { error: "job not found" });
+      return;
+    }
+    jsonResponse(res, 200, { ok: true, ...jobDetail(registry, job) });
     return;
   }
 
@@ -367,6 +491,32 @@ async function handleRequest(req, res) {
     page.captures = page.captures.slice(0, 20);
     await saveRegistry(registry);
     jsonResponse(res, 200, { ok: true, page });
+    return;
+  }
+
+  if (requestUrl.pathname === "/jobs") {
+    if (!body.url || !body.intent) {
+      jsonResponse(res, 400, { error: "url and intent are required" });
+      return;
+    }
+    const { job, page } = createJob(registry, body);
+    await saveRegistry(registry);
+    jsonResponse(res, 200, { ok: true, job: summarizeJob(job), page, activePatch: activePatch(page) });
+    return;
+  }
+
+  if (requestUrl.pathname === "/jobs/claim") {
+    const job = firstClaimableJob(registry, body.jobId ? String(body.jobId) : null);
+    if (!job) {
+      jsonResponse(res, 404, { error: "no queued job found" });
+      return;
+    }
+    job.status = "working";
+    job.agentId = String(body.agentId ?? "terminal-agent");
+    job.claimedAt = nowIso();
+    job.updatedAt = nowIso();
+    await saveRegistry(registry);
+    jsonResponse(res, 200, { ok: true, ...jobDetail(registry, job) });
     return;
   }
 
@@ -422,6 +572,12 @@ async function handleRequest(req, res) {
     };
     page.patches.unshift(patch);
     page.activePatchId = patch.id;
+    if (body.jobId && registry.jobs?.[String(body.jobId)]) {
+      const job = registry.jobs[String(body.jobId)];
+      job.activePatchId = patch.id;
+      job.status = job.status === "queued" ? "working" : job.status;
+      job.updatedAt = nowIso();
+    }
     await saveRegistry(registry);
     jsonResponse(res, 200, { ok: true, page, activePatch: patch });
     return;
@@ -573,8 +729,72 @@ async function handleRequest(req, res) {
       patch.updatedAt = nowIso();
       patch.verificationId = page.verification.id;
     }
+    for (const job of Object.values(registry.jobs ?? {})) {
+      if (job.pageKey === page.key && (!job.activePatchId || job.activePatchId === patch?.id)) {
+        if (["working", "queued", "failed"].includes(job.status)) {
+          job.status = status;
+          job.activePatchId = patch?.id ?? job.activePatchId ?? null;
+          job.verificationId = page.verification.id;
+          job.updatedAt = nowIso();
+          job.completedAt = nowIso();
+          job.error = status === "failed" ? "verification failed" : null;
+        }
+      }
+    }
     await saveRegistry(registry);
     jsonResponse(res, 200, { ok: true, verification: page.verification, page, activePatch: patch });
+    return;
+  }
+
+  if (requestUrl.pathname === "/jobs/complete") {
+    if (!body.jobId) {
+      jsonResponse(res, 400, { error: "jobId is required" });
+      return;
+    }
+    const job = registry.jobs?.[String(body.jobId)];
+    if (!job) {
+      jsonResponse(res, 404, { error: "job not found" });
+      return;
+    }
+    const finalStatus =
+      body.status === "blocked" ? "blocked" : body.status === "failed" ? "failed" : "verified";
+    job.status = finalStatus;
+    job.activePatchId = body.activePatchId ? String(body.activePatchId) : job.activePatchId ?? null;
+    job.verificationId = body.verificationId ? String(body.verificationId) : job.verificationId ?? null;
+    job.error = finalStatus === "verified" ? null : body.error ? String(body.error) : null;
+    job.completionNote = body.error ? String(body.error) : null;
+    job.updatedAt = nowIso();
+    job.completedAt = nowIso();
+    const page = registry.pages[job.pageKey] ?? null;
+    const patch = page?.patches?.find((item) => item.id === job.activePatchId) ?? null;
+    if (patch) {
+      patch.verified = finalStatus === "verified";
+      patch.updatedAt = nowIso();
+      if (job.verificationId) {
+        patch.verificationId = job.verificationId;
+      }
+    }
+    await saveRegistry(registry);
+    jsonResponse(res, 200, { ok: true, ...jobDetail(registry, job) });
+    return;
+  }
+
+  if (requestUrl.pathname === "/jobs/fail") {
+    if (!body.jobId) {
+      jsonResponse(res, 400, { error: "jobId is required" });
+      return;
+    }
+    const job = registry.jobs?.[String(body.jobId)];
+    if (!job) {
+      jsonResponse(res, 404, { error: "job not found" });
+      return;
+    }
+    job.status = "failed";
+    job.error = String(body.error ?? "agent reported failure");
+    job.updatedAt = nowIso();
+    job.completedAt = nowIso();
+    await saveRegistry(registry);
+    jsonResponse(res, 200, { ok: true, ...jobDetail(registry, job) });
     return;
   }
 
