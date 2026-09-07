@@ -1,4 +1,3 @@
-const BRIDGE = "http://127.0.0.1:18793";
 const STYLE_ID = "openclaw-page-modifier-style";
 const SCRIPT_MARK = "data-openclaw-page-modifier-script";
 
@@ -69,15 +68,17 @@ function applyPatch(patch) {
 }
 
 async function fetchActivePatch() {
-  const response = await fetch(`${BRIDGE}/page?url=${encodeURIComponent(currentUrl())}`);
-  if (!response.ok) {
+  // Keep loopback traffic in the extension service-worker context. Fetching the
+  // bridge directly here attributes the request to every visited page, which
+  // makes Chromium ask each site for access to apps and services on the device.
+  const response = await chrome.runtime.sendMessage({
+    type: "OPENCLAW_GET_ACTIVE_PATCH",
+    url: currentUrl(),
+  });
+  if (!response?.ok) {
     return null;
   }
-  const data = await response.json();
-  if (!data.page?.enabled) {
-    return null;
-  }
-  return data.activePatch ?? null;
+  return response.patch ?? null;
 }
 
 function storageSnapshotFor(storage) {

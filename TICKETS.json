@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "project": "page-modifier",
+  "updatedAt": "2026-09-07T20:31:52.828552Z",
+  "tickets": [
+    {
+      "id": "TKT-0001",
+      "title": "Stop Page Modifier loopback permission prompt on every page",
+      "status": "done",
+      "details": "Move automatic patch lookup out of the page content-script network context so ordinary browsing does not request access to apps and services on the device.",
+      "acceptance": "No content script makes loopback requests; active saved patches still load automatically through an extension-owned bridge path; browser no longer emits per-site loopback prompts.",
+      "source": "https://blackbear.tail0b3173.ts.net:16443/threads/67486a71-8a61-4ca7-ad2d-886748ba5133/743431ac-cb45-45ce-bd9a-7db89b8f9340",
+      "createdAt": "2026-09-07T20:22:50.260062Z",
+      "updatedAt": "2026-09-07T20:31:52.828516Z"
+    }
+  ]
+}

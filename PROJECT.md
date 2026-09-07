@@ -19,8 +19,11 @@ the actuator; the expected operator is the terminal agent.
 
 ## Core Workflow
 
-1. User opens a page and clicks the extension.
-2. Extension captures page summary, metrics, current URL, and saved intent.
+1. User opens a page. The content script asks the extension service worker for
+   any saved patch; only the service worker can contact the loopback bridge, so
+   ordinary sites never request local-device access.
+2. User clicks the extension, which captures page summary, metrics, current URL,
+   and saved intent.
 3. User clicks `Send to agent`.
 4. Bridge creates a queued job with page URL, intent, and capture pointer.
 5. Terminal agent claims the job through CLI/API/MCP.

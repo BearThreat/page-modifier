@@ -12,3 +12,4 @@ dist/
 # Browser verifier profiles and temporary screenshots belong outside git.
 verify-profile/
 screenshots/
+.TICKETS.lock

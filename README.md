@@ -86,6 +86,11 @@ Then load `web-extension/` as an unpacked extension in Brave/Chrome.
 
 Default bridge URL: `http://127.0.0.1:18793`.
 
+The extension service worker owns all loopback bridge requests. Content scripts
+must not fetch loopback addresses directly: Chromium attributes such a request
+to the visited site and shows an “access other apps and services on this device”
+permission prompt for each origin. `npm run check` enforces this boundary.
+
 Run a local sanity check:
 
 ```bash
