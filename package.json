@@ -22,7 +22,7 @@
     "todoist-speedup-demo": "node ./scripts/todoist-speedup-demo.mjs",
     "verify-page": "node ./scripts/verify-page.mjs",
     "verify-page:openclaw": "node ./scripts/verify-page.mjs --backend openclaw",
-    "check": "node --check ./bridge/server.mjs && node --check ./lib/client.mjs && node --check ./bin/page-modifier.mjs && node --check ./mcp/server.mjs && node --check ./scripts/import-session.mjs && node --check ./scripts/todoist-speedup-demo.mjs && node --check ./scripts/verify-page.mjs && node --check ./web-extension/popup.js && node --check ./web-extension/content-script.js && node --check ./web-extension/service-worker.js && node ./scripts/verify-extension-boundary.mjs && node --check ./scripts/install-chatgpt-performance.mjs && node --check ./scripts/chatgpt-performance.test.mjs && bash -n ./scripts/install-user-bridge.sh",
+    "check": "node --check ./bridge/server.mjs && node --check ./lib/client.mjs && node --check ./bin/page-modifier.mjs && node --check ./mcp/server.mjs && node --check ./scripts/import-session.mjs && node --check ./scripts/todoist-speedup-demo.mjs && node --check ./scripts/verify-page.mjs && node --check ./web-extension/popup.js && node --check ./web-extension/content-script.js && node --check ./web-extension/service-worker.js && node ./scripts/verify-extension-boundary.mjs && node --check ./scripts/install-chatgpt-performance.mjs && node --check ./scripts/chatgpt-performance.test.mjs && node --check ./scripts/benchmark-chatgpt-performance.mjs && bash -n ./scripts/install-user-bridge.sh",
     "test:chatgpt-performance": "node --test ./scripts/chatgpt-performance.test.mjs",
     "install:bridge": "./scripts/install-user-bridge.sh",
     "install:chatgpt-performance": "node ./scripts/install-chatgpt-performance.mjs"

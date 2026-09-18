@@ -67,3 +67,22 @@ Disable the bridge entirely:
 No visible-browser restart is required for the bridge. An already-loaded ChatGPT
 document needs one ordinary page reload to run the existing content script and
 receive the newly stored bundle.
+
+## Quantitative A/B performance verification
+
+After the deployment verification above, a separate counterbalanced browser A/B
+benchmark was run at 50, 150, and 300 synthetic ChatGPT-like turns with three
+samples per mode at each size. It used a disposable headless Brave, the actual
+Page Modifier extension, the real chatgpt.com origin, and an isolated bridge
+whose CSS was byte-for-byte identical to the production patch.
+
+Median first build/layout time improved from 147.9 to 26.4 ms at 50 turns,
+259.9 to 42.7 ms at 150 turns, and 556.4 to 75.0 ms at 300 turns: reductions of
+82.1%, 83.6%, and 86.5%. Median Chromium LayoutDuration during the interaction
+workload fell 65.9%, 75.6%, and 69.2%; TaskDuration fell 29.7%, 56.3%, and 49.0%.
+
+Scroll-frame p95 did not improve consistently, so the verified claim is narrower:
+the patch materially reduces layout/render/main-thread cost for long histories.
+It is not presented as a universal FPS or model-response-latency speedup.
+
+See BENCHMARK.md, benchmark-summary.json, and benchmark-raw.json.

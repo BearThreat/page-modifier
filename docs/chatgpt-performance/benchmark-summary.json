@@ -1,0 +1,197 @@
+{
+  "generatedAt": "2026-09-18T22:53:47.338Z",
+  "method": {
+    "sizes": [
+      50,
+      150,
+      300
+    ],
+    "pattern": [
+      "off",
+      "on",
+      "on",
+      "off",
+      "off",
+      "on"
+    ],
+    "synthetic": true,
+    "accountDataUsed": false,
+    "note": "Actual extension and ChatGPT origin; deterministic synthetic long-conversation DOM after extension state verification."
+  },
+  "productionPatch": {
+    "id": "patch_mu7gtv3l_zklrh4",
+    "verified": true,
+    "sha256": "afad5940c65f0a7d1fd890cf453f993800bbd2797ac847dde724b32542e226a1",
+    "notes": "bear3t-chatgpt-performance-v1"
+  },
+  "byTurns": {
+    "50": {
+      "buildLayoutMs": {
+        "offMedian": 147.87999999523163,
+        "onMedian": 26.435000002384186,
+        "changePct": -82.12401947306155,
+        "speedupX": 5.59409873205577
+      },
+      "styleLoopMs": {
+        "offMedian": 325.1399999856949,
+        "onMedian": 14.4200000166893,
+        "changePct": -95.56498738471927,
+        "speedupX": 22.547850180956104
+      },
+      "frameP95Ms": {
+        "offMedian": 23.9650000333786,
+        "onMedian": 23.810000002384186,
+        "changePct": -0.6467766775653255,
+        "speedupX": 1.0065098711036915
+      },
+      "frameMaxMs": {
+        "offMedian": 189.75999999046326,
+        "onMedian": 152.73500001430511,
+        "changePct": -19.511488184031883,
+        "speedupX": 1.2424133300991285
+      },
+      "framesOver33": {
+        "offMedian": 1,
+        "onMedian": 1,
+        "changePct": 0.0,
+        "speedupX": 1.0
+      },
+      "workloadTaskMs": {
+        "offMedian": 802.6470000000002,
+        "onMedian": 563.8870000000001,
+        "changePct": -29.746576016605065,
+        "speedupX": 1.4234181671150428
+      },
+      "workloadLayoutMs": {
+        "offMedian": 244.22499999999997,
+        "onMedian": 83.35000000000001,
+        "changePct": -65.8716347630259,
+        "speedupX": 2.9301139772045586
+      },
+      "workloadRecalcStyleMs": {
+        "offMedian": 76.279,
+        "onMedian": 29.962000000000003,
+        "changePct": -60.720512854127605,
+        "speedupX": 2.5458580869100857
+      },
+      "setupTaskMs": {
+        "offMedian": 186.25300000000001,
+        "onMedian": 53.287,
+        "changePct": -71.38999103370148,
+        "speedupX": 3.4952802747386795
+      }
+    },
+    "150": {
+      "buildLayoutMs": {
+        "offMedian": 259.94999998807907,
+        "onMedian": 42.7049999833107,
+        "changePct": -83.5718407442704,
+        "speedupX": 6.087109239893892
+      },
+      "styleLoopMs": {
+        "offMedian": 800.5250000357628,
+        "onMedian": 17.72999995946884,
+        "changePct": -97.78520346539125,
+        "speedupX": 45.15087432971123
+      },
+      "frameP95Ms": {
+        "offMedian": 29.12999999523163,
+        "onMedian": 21.709999978542328,
+        "changePct": -25.47202203193924,
+        "speedupX": 1.341777983603089
+      },
+      "frameMaxMs": {
+        "offMedian": 186.5199999809265,
+        "onMedian": 167.92500001192093,
+        "changePct": -9.969440258903658,
+        "speedupX": 1.110733958420042
+      },
+      "framesOver33": {
+        "offMedian": 2,
+        "onMedian": 1,
+        "changePct": -50.0,
+        "speedupX": 2.0
+      },
+      "workloadTaskMs": {
+        "offMedian": 1322.33,
+        "onMedian": 578.384,
+        "changePct": -56.26023761088381,
+        "speedupX": 2.2862492738388336
+      },
+      "workloadLayoutMs": {
+        "offMedian": 614.908,
+        "onMedian": 150.151,
+        "changePct": -75.58155041079317,
+        "speedupX": 4.095264100805189
+      },
+      "workloadRecalcStyleMs": {
+        "offMedian": 185.34400000000002,
+        "onMedian": 61.538999999999994,
+        "changePct": -66.79741453729284,
+        "speedupX": 3.0118136466305927
+      },
+      "setupTaskMs": {
+        "offMedian": 326.98299999999995,
+        "onMedian": 60.42800000000001,
+        "changePct": -81.51952853818088,
+        "speedupX": 5.41111736281194
+      }
+    },
+    "300": {
+      "buildLayoutMs": {
+        "offMedian": 556.375,
+        "onMedian": 74.99000000953674,
+        "changePct": -86.52168051951709,
+        "speedupX": 7.419322575399971
+      },
+      "styleLoopMs": {
+        "offMedian": 1003.8349999785423,
+        "onMedian": 13.290000021457672,
+        "changePct": -98.67607724160428,
+        "speedupX": 75.53310747613075
+      },
+      "frameP95Ms": {
+        "offMedian": 25.42500001192093,
+        "onMedian": 24.944999992847443,
+        "changePct": -1.8879056788532171,
+        "speedupX": 1.0192423339030314
+      },
+      "frameMaxMs": {
+        "offMedian": 162.04000002145767,
+        "onMedian": 141.53500002622604,
+        "changePct": -12.654282888494391,
+        "speedupX": 1.1448758257069425
+      },
+      "framesOver33": {
+        "offMedian": 1,
+        "onMedian": 2,
+        "changePct": 100.0,
+        "speedupX": 0.5
+      },
+      "workloadTaskMs": {
+        "offMedian": 1374.927,
+        "onMedian": 701.732,
+        "changePct": -48.962235813246814,
+        "speedupX": 1.9593334777379399
+      },
+      "workloadLayoutMs": {
+        "offMedian": 756.44,
+        "onMedian": 232.83,
+        "changePct": -69.22029506636349,
+        "speedupX": 3.2488940428638924
+      },
+      "workloadRecalcStyleMs": {
+        "offMedian": 247.186,
+        "onMedian": 89.316,
+        "changePct": -63.86688566504576,
+        "speedupX": 2.7675444489229255
+      },
+      "setupTaskMs": {
+        "offMedian": 699.049,
+        "onMedian": 94.63000000000002,
+        "changePct": -86.46303764113817,
+        "speedupX": 7.387181654866319
+      }
+    }
+  }
+}

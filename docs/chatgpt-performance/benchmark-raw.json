@@ -1,0 +1,685 @@
+{
+  "generatedAt": "2026-09-18T22:53:47.338Z",
+  "host": "blackbear",
+  "browser": "Brave headless with actual Page Modifier extension",
+  "origin": "https://chatgpt.com/",
+  "productionPatch": {
+    "id": "patch_mu7gtv3l_zklrh4",
+    "verified": true,
+    "sha256": "afad5940c65f0a7d1fd890cf453f993800bbd2797ac847dde724b32542e226a1",
+    "notes": "bear3t-chatgpt-performance-v1"
+  },
+  "design": {
+    "sizes": [
+      50,
+      150,
+      300
+    ],
+    "pattern": [
+      "off",
+      "on",
+      "on",
+      "off",
+      "off",
+      "on"
+    ],
+    "synthetic": true,
+    "accountDataUsed": false,
+    "note": "Actual extension and ChatGPT origin; deterministic synthetic long-conversation DOM after extension state verification."
+  },
+  "seededPatchId": "patch_mu7k18jk_htwg1y",
+  "runs": [
+    {
+      "turns": 50,
+      "mode": "off",
+      "order": 0,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 50,
+        "buildLayoutMs": 147.87999999523163,
+        "height": 49319,
+        "nodes": 6157,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 340.61500000953674,
+        "scrollWallMs": 776.3700000047684,
+        "frames": {
+          "medianMs": 16.69999998807907,
+          "p95Ms": 23.535000026226044,
+          "maxMs": 189.75999999046326,
+          "over20ms": 4,
+          "over33ms": 1
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 529,
+        "longTaskMaxMs": 367
+      },
+      "cdp": {
+        "setupLayoutMs": 93.25,
+        "setupRecalcStyleMs": 31.387000000000004,
+        "setupTaskMs": 186.25300000000001,
+        "workloadLayoutMs": 272.261,
+        "workloadRecalcStyleMs": 67.913,
+        "workloadTaskMs": 802.6470000000002
+      }
+    },
+    {
+      "turns": 50,
+      "mode": "on",
+      "order": 1,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 50,
+        "buildLayoutMs": 28.915000021457672,
+        "height": 30750,
+        "nodes": 6157,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 14.4200000166893,
+        "scrollWallMs": 752.3149999976158,
+        "frames": {
+          "medianMs": 16.630000054836273,
+          "p95Ms": 23.810000002384186,
+          "maxMs": 180.64000004529953,
+          "over20ms": 6,
+          "over33ms": 1
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 177,
+        "longTaskMaxMs": 177
+      },
+      "cdp": {
+        "setupLayoutMs": 10.678999999999998,
+        "setupRecalcStyleMs": 6.869,
+        "setupTaskMs": 56.754,
+        "workloadLayoutMs": 83.35000000000001,
+        "workloadRecalcStyleMs": 29.962000000000003,
+        "workloadTaskMs": 563.8870000000001
+      }
+    },
+    {
+      "turns": 50,
+      "mode": "on",
+      "order": 2,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 50,
+        "buildLayoutMs": 26.435000002384186,
+        "height": 30750,
+        "nodes": 6157,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 37.00999999046326,
+        "scrollWallMs": 713.6699999570847,
+        "frames": {
+          "medianMs": 16.290000021457672,
+          "p95Ms": 30.24500000476837,
+          "maxMs": 121.91999995708466,
+          "over20ms": 11,
+          "over33ms": 2
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 118,
+        "longTaskMaxMs": 118
+      },
+      "cdp": {
+        "setupLayoutMs": 8.519,
+        "setupRecalcStyleMs": 4.55,
+        "setupTaskMs": 53.287,
+        "workloadLayoutMs": 101.356,
+        "workloadRecalcStyleMs": 56.035999999999994,
+        "workloadTaskMs": 589.207
+      }
+    },
+    {
+      "turns": 50,
+      "mode": "off",
+      "order": 3,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 50,
+        "buildLayoutMs": 221.4099999666214,
+        "height": 49319,
+        "nodes": 6157,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 305.3949999809265,
+        "scrollWallMs": 791.0849999785423,
+        "frames": {
+          "medianMs": 16.6700000166893,
+          "p95Ms": 23.9650000333786,
+          "maxMs": 202.38499999046326,
+          "over20ms": 6,
+          "over33ms": 1
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 506,
+        "longTaskMaxMs": 326
+      },
+      "cdp": {
+        "setupLayoutMs": 140.27700000000002,
+        "setupRecalcStyleMs": 48.298,
+        "setupTaskMs": 317.732,
+        "workloadLayoutMs": 228.792,
+        "workloadRecalcStyleMs": 76.279,
+        "workloadTaskMs": 820.3790000000001
+      }
+    },
+    {
+      "turns": 50,
+      "mode": "off",
+      "order": 4,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 50,
+        "buildLayoutMs": 137.80500000715256,
+        "height": 49319,
+        "nodes": 6157,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 325.1399999856949,
+        "scrollWallMs": 757.3199999928474,
+        "frames": {
+          "medianMs": 16.655000030994415,
+          "p95Ms": 27.185000002384186,
+          "maxMs": 148.71000003814697,
+          "over20ms": 6,
+          "over33ms": 1
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 473,
+        "longTaskMaxMs": 338
+      },
+      "cdp": {
+        "setupLayoutMs": 81.715,
+        "setupRecalcStyleMs": 27.854999999999997,
+        "setupTaskMs": 181.76500000000001,
+        "workloadLayoutMs": 244.22499999999997,
+        "workloadRecalcStyleMs": 80.49100000000001,
+        "workloadTaskMs": 747.249
+      }
+    },
+    {
+      "turns": 50,
+      "mode": "on",
+      "order": 5,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 50,
+        "buildLayoutMs": 14.905000030994415,
+        "height": 30750,
+        "nodes": 6157,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 12.600000023841858,
+        "scrollWallMs": 720.7549999952316,
+        "frames": {
+          "medianMs": 16.589999973773956,
+          "p95Ms": 22.055000007152557,
+          "maxMs": 152.73500001430511,
+          "over20ms": 4,
+          "over33ms": 1
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 146,
+        "longTaskMaxMs": 146
+      },
+      "cdp": {
+        "setupLayoutMs": 6.843,
+        "setupRecalcStyleMs": 3.3970000000000002,
+        "setupTaskMs": 32.56900000000002,
+        "workloadLayoutMs": 64.611,
+        "workloadRecalcStyleMs": 26.241,
+        "workloadTaskMs": 407.985
+      }
+    },
+    {
+      "turns": 150,
+      "mode": "off",
+      "order": 0,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 150,
+        "buildLayoutMs": 258.1050000190735,
+        "height": 147956,
+        "nodes": 18457,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 831.964999973774,
+        "scrollWallMs": 796.035000026226,
+        "frames": {
+          "medianMs": 17.07499998807907,
+          "p95Ms": 27.664999961853027,
+          "maxMs": 176.41000002622604,
+          "over20ms": 6,
+          "over33ms": 2
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 1032,
+        "longTaskMaxMs": 914
+      },
+      "cdp": {
+        "setupLayoutMs": 157.225,
+        "setupRecalcStyleMs": 59.483000000000004,
+        "setupTaskMs": 326.98299999999995,
+        "workloadLayoutMs": 644.096,
+        "workloadRecalcStyleMs": 187.60500000000002,
+        "workloadTaskMs": 1484.054
+      }
+    },
+    {
+      "turns": 150,
+      "mode": "on",
+      "order": 1,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 150,
+        "buildLayoutMs": 63.88499999046326,
+        "height": 92250,
+        "nodes": 18457,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 17.72999995946884,
+        "scrollWallMs": 632.1999999880791,
+        "frames": {
+          "medianMs": 16.7399999499321,
+          "p95Ms": 21.134999990463257,
+          "maxMs": 33.87000000476837,
+          "over20ms": 5,
+          "over33ms": 1
+        },
+        "longTaskCount": 0,
+        "longTaskTotalMs": 0,
+        "longTaskMaxMs": 0
+      },
+      "cdp": {
+        "setupLayoutMs": 7.938000000000001,
+        "setupRecalcStyleMs": 5.149,
+        "setupTaskMs": 87.42100000000002,
+        "workloadLayoutMs": 172.569,
+        "workloadRecalcStyleMs": 63.416,
+        "workloadTaskMs": 569.9649999999998
+      }
+    },
+    {
+      "turns": 150,
+      "mode": "on",
+      "order": 2,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 150,
+        "buildLayoutMs": 40.985000014305115,
+        "height": 92250,
+        "nodes": 18457,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 16.334999978542328,
+        "scrollWallMs": 750.2300000190735,
+        "frames": {
+          "medianMs": 16.6700000166893,
+          "p95Ms": 21.709999978542328,
+          "maxMs": 167.92500001192093,
+          "over20ms": 6,
+          "over33ms": 1
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 162,
+        "longTaskMaxMs": 162
+      },
+      "cdp": {
+        "setupLayoutMs": 5.529999999999999,
+        "setupRecalcStyleMs": 3.066,
+        "setupTaskMs": 57.81600000000001,
+        "workloadLayoutMs": 145.46,
+        "workloadRecalcStyleMs": 54.897,
+        "workloadTaskMs": 578.384
+      }
+    },
+    {
+      "turns": 150,
+      "mode": "off",
+      "order": 3,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 150,
+        "buildLayoutMs": 372.05000001192093,
+        "height": 147956,
+        "nodes": 18457,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 800.5250000357628,
+        "scrollWallMs": 817.210000038147,
+        "frames": {
+          "medianMs": 16.694999992847443,
+          "p95Ms": 30.290000021457672,
+          "maxMs": 199.11000001430511,
+          "over20ms": 6,
+          "over33ms": 2
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 998,
+        "longTaskMaxMs": 850
+      },
+      "cdp": {
+        "setupLayoutMs": 234.533,
+        "setupRecalcStyleMs": 77.64999999999999,
+        "setupTaskMs": 445.377,
+        "workloadLayoutMs": 614.908,
+        "workloadRecalcStyleMs": 185.34400000000002,
+        "workloadTaskMs": 1322.33
+      }
+    },
+    {
+      "turns": 150,
+      "mode": "off",
+      "order": 4,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 150,
+        "buildLayoutMs": 259.94999998807907,
+        "height": 147956,
+        "nodes": 18457,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 644.0249999761581,
+        "scrollWallMs": 789.4350000023842,
+        "frames": {
+          "medianMs": 16.7049999833107,
+          "p95Ms": 29.12999999523163,
+          "maxMs": 186.5199999809265,
+          "over20ms": 4,
+          "over33ms": 2
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 830,
+        "longTaskMaxMs": 680
+      },
+      "cdp": {
+        "setupLayoutMs": 164.858,
+        "setupRecalcStyleMs": 54.980999999999995,
+        "setupTaskMs": 318.35799999999995,
+        "workloadLayoutMs": 505.98299999999995,
+        "workloadRecalcStyleMs": 137.828,
+        "workloadTaskMs": 1179.392
+      }
+    },
+    {
+      "turns": 150,
+      "mode": "on",
+      "order": 5,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 150,
+        "buildLayoutMs": 42.7049999833107,
+        "height": 92250,
+        "nodes": 18457,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 18.9549999833107,
+        "scrollWallMs": 795.7400000095367,
+        "frames": {
+          "medianMs": 16.665000021457672,
+          "p95Ms": 32.05499994754791,
+          "maxMs": 191.5199999809265,
+          "over20ms": 3,
+          "over33ms": 2
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 173,
+        "longTaskMaxMs": 173
+      },
+      "cdp": {
+        "setupLayoutMs": 5.403,
+        "setupRecalcStyleMs": 3.615,
+        "setupTaskMs": 60.42800000000001,
+        "workloadLayoutMs": 150.151,
+        "workloadRecalcStyleMs": 61.538999999999994,
+        "workloadTaskMs": 701.072
+      }
+    },
+    {
+      "turns": 300,
+      "mode": "off",
+      "order": 0,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 300,
+        "buildLayoutMs": 556.375,
+        "height": 295913,
+        "nodes": 36907,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 1537.7799999713898,
+        "scrollWallMs": 899.0799999833107,
+        "frames": {
+          "medianMs": 16.685000002384186,
+          "p95Ms": 29.310000002384186,
+          "maxMs": 287.3700000047684,
+          "over20ms": 5,
+          "over33ms": 2
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 1824,
+        "longTaskMaxMs": 1628
+      },
+      "cdp": {
+        "setupLayoutMs": 365.743,
+        "setupRecalcStyleMs": 118.24100000000001,
+        "setupTaskMs": 699.049,
+        "workloadLayoutMs": 1103.863,
+        "workloadRecalcStyleMs": 433.65600000000006,
+        "workloadTaskMs": 2204.772
+      }
+    },
+    {
+      "turns": 300,
+      "mode": "on",
+      "order": 1,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 300,
+        "buildLayoutMs": 99.33499997854233,
+        "height": 184500,
+        "nodes": 36907,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 20.530000030994415,
+        "scrollWallMs": 779.3849999904633,
+        "frames": {
+          "medianMs": 16.7049999833107,
+          "p95Ms": 26.35499995946884,
+          "maxMs": 141.53500002622604,
+          "over20ms": 8,
+          "over33ms": 2
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 137,
+        "longTaskMaxMs": 137
+      },
+      "cdp": {
+        "setupLayoutMs": 4.882999999999999,
+        "setupRecalcStyleMs": 3.682,
+        "setupTaskMs": 116.879,
+        "workloadLayoutMs": 258.79200000000003,
+        "workloadRecalcStyleMs": 103.68400000000001,
+        "workloadTaskMs": 766.597
+      }
+    },
+    {
+      "turns": 300,
+      "mode": "on",
+      "order": 2,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 300,
+        "buildLayoutMs": 74.99000000953674,
+        "height": 184500,
+        "nodes": 36907,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 13.290000021457672,
+        "scrollWallMs": 769.9049999713898,
+        "frames": {
+          "medianMs": 16.6599999666214,
+          "p95Ms": 24.944999992847443,
+          "maxMs": 170.38999998569489,
+          "over20ms": 4,
+          "over33ms": 2
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 154,
+        "longTaskMaxMs": 154
+      },
+      "cdp": {
+        "setupLayoutMs": 6.273,
+        "setupRecalcStyleMs": 6.244,
+        "setupTaskMs": 94.63000000000002,
+        "workloadLayoutMs": 232.83,
+        "workloadRecalcStyleMs": 89.316,
+        "workloadTaskMs": 701.732
+      }
+    },
+    {
+      "turns": 300,
+      "mode": "off",
+      "order": 3,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 300,
+        "buildLayoutMs": 597.589999973774,
+        "height": 295913,
+        "nodes": 36907,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 953.5999999642372,
+        "scrollWallMs": 705.1449999809265,
+        "frames": {
+          "medianMs": 16.660000026226044,
+          "p95Ms": 25.42500001192093,
+          "maxMs": 118.59499996900558,
+          "over20ms": 4,
+          "over33ms": 1
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 1071,
+        "longTaskMaxMs": 1005
+      },
+      "cdp": {
+        "setupLayoutMs": 404.521,
+        "setupRecalcStyleMs": 112.326,
+        "setupTaskMs": 711.96,
+        "workloadLayoutMs": 722.816,
+        "workloadRecalcStyleMs": 230.599,
+        "workloadTaskMs": 1348.4919999999997
+      }
+    },
+    {
+      "turns": 300,
+      "mode": "off",
+      "order": 4,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 300,
+        "buildLayoutMs": 322.9549999833107,
+        "height": 295913,
+        "nodes": 36907,
+        "contentVisibility": "visible",
+        "intrinsicBlockSize": "none"
+      },
+      "workload": {
+        "styleLoopMs": 1003.8349999785423,
+        "scrollWallMs": 729.464999973774,
+        "frames": {
+          "medianMs": 16.664999961853027,
+          "p95Ms": 16.84500002861023,
+          "maxMs": 162.04000002145767,
+          "over20ms": 2,
+          "over33ms": 1
+        },
+        "longTaskCount": 2,
+        "longTaskTotalMs": 1165,
+        "longTaskMaxMs": 1065
+      },
+      "cdp": {
+        "setupLayoutMs": 207.179,
+        "setupRecalcStyleMs": 67.33299999999998,
+        "setupTaskMs": 410.3020000000001,
+        "workloadLayoutMs": 756.44,
+        "workloadRecalcStyleMs": 247.186,
+        "workloadTaskMs": 1374.927
+      }
+    },
+    {
+      "turns": 300,
+      "mode": "on",
+      "order": 5,
+      "extensionVerified": true,
+      "setup": {
+        "turns": 300,
+        "buildLayoutMs": 59.43000000715256,
+        "height": 184500,
+        "nodes": 36907,
+        "contentVisibility": "auto",
+        "intrinsicBlockSize": "auto 560px"
+      },
+      "workload": {
+        "styleLoopMs": 9.569999992847443,
+        "scrollWallMs": 633.4900000095367,
+        "frames": {
+          "medianMs": 16.599999964237213,
+          "p95Ms": 20.134999990463257,
+          "maxMs": 83.92999994754791,
+          "over20ms": 3,
+          "over33ms": 1
+        },
+        "longTaskCount": 1,
+        "longTaskTotalMs": 71,
+        "longTaskMaxMs": 71
+      },
+      "cdp": {
+        "setupLayoutMs": 4.163,
+        "setupRecalcStyleMs": 3.4079999999999995,
+        "setupTaskMs": 73.89699999999999,
+        "workloadLayoutMs": 142.74800000000002,
+        "workloadRecalcStyleMs": 52.587,
+        "workloadTaskMs": 538.827
+      }
+    }
+  ],
+  "logs": {
+    "bridgeTail": "[page-modifier] bridge listening on http://127.0.0.1:35979\n[page-modifier] registry /tmp/chatgpt-perf-benchmark-7xgiC7/data/registry.json\n",
+    "braveTail": "\nDevTools listening on ws://127.0.0.1:36673/devtools/browser/aba7b568-aa2c-4ed5-807d-2e73bd9429e2\n"
+  }
+}
