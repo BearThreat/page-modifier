@@ -379,3 +379,35 @@ Repository primitives:
 Starter example: `page speedup` intent. The Todoist demo uses a conservative
 reduced-motion patch that aims to make the app feel less laggy without deleting
 task rows or changing visible text.
+
+## ChatGPT performance mode
+
+On Blackbear, Page Modifier can maintain a conservative site-wide ChatGPT speed
+bundle without modifying ChatGPT application code. The bundle is CSS-only:
+
+- old/off-screen conversation turns use Chromium content-visibility auto;
+- intrinsic block sizing reduces scroll jumps while skipped turns are restored;
+- smooth scrolling is disabled;
+- elements explicitly carrying ChatGPT backdrop-blur classes lose that blur paint.
+
+It does not delete messages, block requests, rewrite React state, patch streaming,
+or disable form controls/code blocks. The root ChatGPT page is marked siteWide,
+so the bridge resolves the bundle for conversation paths while exact page entries
+can still opt out with Original mode.
+
+Install the persistent loopback bridge and bundle with:
+
+    ./scripts/install-user-bridge.sh
+    node scripts/install-chatgpt-performance.mjs
+
+Disable only the ChatGPT bundle with:
+
+    node scripts/install-chatgpt-performance.mjs --rollback
+
+The Blackbear bridge is a user systemd service bound only to 127.0.0.1:18793.
+Its active data lives at ~/.local/share/page-modifier. The installer performs a
+one-time copy of a legacy registry only when the new registry does not exist.
+The old location is not used by the installed service afterward.
+
+Verification evidence for the deployed Blackbear bundle lives in
+docs/chatgpt-performance/.

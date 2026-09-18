@@ -1,0 +1,25 @@
+{
+  "verificationId": "verify_mu7gwi3r_0cvxby",
+  "status": "verified",
+  "patchId": "patch_mu7gtv3l_zklrh4",
+  "verified": true,
+  "evidence": {
+    "kind": "isolated-headless-extension-e2e",
+    "assertions": {
+      "actualExtensionLoaded": true,
+      "siteWidePatchApplied": true,
+      "intrinsicBlockSize": "auto 560px",
+      "smoothScrollDisabled": true,
+      "backdropBlurDisabled": true,
+      "buttonPreserved": true,
+      "textareaPreserved": true,
+      "codeBlockPreserved": true,
+      "originalModeNoPatch": true,
+      "reapplyRestoredPatch": true,
+      "unrelatedOriginUnmodified": true
+    },
+    "appliedScreenshotSha256": "16c20cf6015d0553e7163067e2cc1a29797c53804500b13fd2da8372445f379f",
+    "originalScreenshotSha256": "c44f5ba1575df85f9022547890dc3f49031b223fb96b5c61e8ea654828a71e24",
+    "artifactDirectory": "artifacts/chatgpt-performance"
+  }
+}

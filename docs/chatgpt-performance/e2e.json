@@ -1,0 +1,43 @@
+{
+  "applied": {
+    "host": "chatgpt.com",
+    "patchId": "patch_mu7gtv3l_zklrh4",
+    "synthetic": {
+      "contentVisibility": "auto",
+      "intrinsicBlockSize": "auto 560px",
+      "scrollBehavior": "auto",
+      "backdropFilter": "none",
+      "buttons": 1,
+      "textareas": 1,
+      "codeBlocks": 1,
+      "text": "Keep controlKeep inputconst x = 1;"
+    },
+    "screenshot": {
+      "path": "artifacts/chatgpt-performance/applied.png",
+      "bytes": 5032,
+      "sha256": "16c20cf6015d0553e7163067e2cc1a29797c53804500b13fd2da8372445f379f"
+    }
+  },
+  "original": {
+    "host": "chatgpt.com",
+    "hasStyle": false,
+    "patchAttribute": null,
+    "css": "",
+    "screenshot": {
+      "path": "artifacts/chatgpt-performance/original.png",
+      "bytes": 4964,
+      "sha256": "c44f5ba1575df85f9022547890dc3f49031b223fb96b5c61e8ea654828a71e24"
+    }
+  },
+  "reapplied": {
+    "host": "chatgpt.com",
+    "patchId": "patch_mu7gtv3l_zklrh4"
+  },
+  "unrelated": {
+    "host": "www.wikipedia.org",
+    "hasStyle": false,
+    "patchAttribute": null,
+    "css": ""
+  },
+  "ok": true
+}

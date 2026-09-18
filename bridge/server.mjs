@@ -4,8 +4,12 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
-const PORT = Number.parseInt(process.env.OPENCLAW_PAGE_MODIFIER_PORT ?? "18793", 10);
+const PORT = Number.parseInt(
+  process.env.PAGE_MODIFIER_PORT ?? process.env.OPENCLAW_PAGE_MODIFIER_PORT ?? "18793",
+  10,
+);
 const DATA_DIR =
+  process.env.PAGE_MODIFIER_DATA_DIR ??
   process.env.OPENCLAW_PAGE_MODIFIER_DATA_DIR ??
   join(homedir(), ".openclaw", "page-modifier");
 const REGISTRY_PATH = join(DATA_DIR, "registry.json");
@@ -108,6 +112,7 @@ function ensurePage(registry, rawUrl) {
     pathname: parsed.pathname,
     urlSample: parsed.toString(),
     enabled: true,
+    siteWide: false,
     intents: [],
     patches: [],
     activePatchId: null,
@@ -275,6 +280,30 @@ function activePatch(page) {
   return page.patches.find((patch) => patch.id === page.activePatchId) ?? null;
 }
 
+function resolvedPatchForUrl(registry, rawUrl) {
+  const parsed = normalizeUrl(rawUrl);
+  const exactPage = registry.pages[pageKey(rawUrl)] ?? null;
+  if (exactPage?.enabled === false) {
+    return { page: exactPage, activePatch: null, resolution: "exact-disabled" };
+  }
+  const exactPatch = exactPage ? activePatch(exactPage) : null;
+  if (exactPage?.enabled !== false && exactPatch) {
+    return { page: exactPage, activePatch: exactPatch, resolution: "exact" };
+  }
+
+  const rootPage = registry.pages[`${parsed.origin}/`] ?? null;
+  const rootPatch = rootPage ? activePatch(rootPage) : null;
+  if (rootPage?.siteWide === true && rootPage.enabled !== false && rootPatch) {
+    return {
+      page: exactPage ?? rootPage,
+      activePatch: rootPatch,
+      resolution: "site-wide",
+      matchedPageKey: rootPage.key,
+    };
+  }
+  return { page: exactPage, activePatch: null, resolution: "none" };
+}
+
 function sanitizeCookie(cookie) {
   return {
     name: String(cookie.name ?? ""),
@@ -396,7 +425,7 @@ async function handleRequest(req, res) {
   if (req.method === "GET" && requestUrl.pathname === "/health") {
     jsonResponse(res, 200, {
       ok: true,
-      service: "openclaw-page-modifier",
+      service: "page-modifier",
       dataDir: DATA_DIR,
       registryPath: REGISTRY_PATH,
       jobCount: Object.keys(registry.jobs ?? {}).length,
@@ -410,12 +439,14 @@ async function handleRequest(req, res) {
       jsonResponse(res, 400, { error: "url is required" });
       return;
     }
-    const key = pageKey(rawUrl);
-    const page = registry.pages[key] ?? null;
+    const resolved = resolvedPatchForUrl(registry, rawUrl);
+    const page = resolved.page;
     const latestJob = page ? latestJobForPage(registry, rawUrl) : null;
     jsonResponse(res, 200, {
       page,
-      activePatch: page ? activePatch(page) : null,
+      activePatch: resolved.activePatch,
+      resolution: resolved.resolution,
+      matchedPageKey: resolved.matchedPageKey ?? page?.key ?? null,
       latestJob: latestJob ? summarizeJob(latestJob) : null,
     });
     return;
@@ -558,6 +589,9 @@ async function handleRequest(req, res) {
       return;
     }
     const page = ensurePage(registry, body.url);
+    if (body.siteWide !== undefined) {
+      page.siteWide = Boolean(body.siteWide);
+    }
     const patch = {
       id: makeId("patch"),
       source: "manual-or-agent",
@@ -634,7 +668,14 @@ async function handleRequest(req, res) {
     const page = ensurePage(registry, body.url);
     page.enabled = Boolean(body.enabled);
     await saveRegistry(registry);
-    jsonResponse(res, 200, { ok: true, page, activePatch: activePatch(page) });
+    const resolved = resolvedPatchForUrl(registry, body.url);
+    jsonResponse(res, 200, {
+      ok: true,
+      page,
+      activePatch: resolved.activePatch,
+      resolution: resolved.resolution,
+      matchedPageKey: resolved.matchedPageKey ?? page.key,
+    });
     return;
   }
 
@@ -684,12 +725,12 @@ async function handleRequest(req, res) {
     const verification = {
       id: makeId("verify"),
       status: "queued",
-      browserProfile: "openclaw",
+      browserProfile: "isolated-headless",
       url: body.url,
       activePatchId: patch?.id ?? null,
       sessionGrantId: latestLiveSessionGrant(page)?.id ?? null,
       checklist: [
-        "Open original page in isolated OpenClaw browser profile",
+        "Open original page in an isolated browser profile",
         "If a live session grant exists, import same-origin cookies and storage into the isolated profile",
         "Record console errors, request failures, load timing, and screenshot",
         "Apply active patch bundle",
